@@ -19,10 +19,8 @@ public class InsertInitDatatoDB {
 		    PreparedStatement pstmt = (PreparedStatement)conn.prepareStatement(sql);
 		    
 		    List<GroupNumber> allList = this.generateList(11,4);//传入号码个数和当前要生成的组合中号码的个数
-		    int i=1;
 		    for (GroupNumber groupNumber : allList)
 		    {
-		    	System.out.println("groupNumber="+groupNumber.getGroupNumber()+"=="+i++);
 				pstmt.setString(1, groupNumber.getGroupNumber());
 				pstmt.setInt(2, 0);
 			    pstmt.addBatch();
