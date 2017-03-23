@@ -38,8 +38,8 @@ public class InitBaseTableData
 	public static void main(String args[])
 	{
 		try{
-			initParams();
-			init();
+//			initParams();
+//			init();
 		}
 		catch(Exception e)
 		{
@@ -52,7 +52,10 @@ public class InitBaseTableData
 		
 		InsertInitDatatoDB datatoDB = new InsertInitDatatoDB();
 		
-		datatoDB.renSifushiData();
+//		datatoDB.renSifushiData();
+//		datatoDB.sanmaData();
+//		datatoDB.liangmaData();
+		datatoDB.liumaData();
 	}
 	
 	
