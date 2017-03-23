@@ -1,0 +1,7 @@
+包名下对应预测方法：
+danma:前三胆码、杀码
+lefour:乐选4四期计划
+liangmaThree:两码三期计划
+qianSLFushi:前三六码复式
+renDanAndFushi:任选胆码与杀码
+renSLGroup:任三精选6组
