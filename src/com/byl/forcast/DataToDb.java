@@ -94,4 +94,32 @@ public class DataToDb
 	    }
 	    return srcDataBean;
 	  }
+	
+	public boolean hasRecordByIssueNumber(String issueNumber, String tbName)
+	  {
+	    Connection srcConn = ConnectSrcDb.getSrcConnection();
+	    boolean flag = false;
+	    int count = 0;
+	    PreparedStatement pstmt = null;
+	    String sql = "SELECT count(*) count FROM " + tbName + " where issue_number = '" + issueNumber + "'";
+	    try
+	    {
+	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);
+	      ResultSet rs = pstmt.executeQuery();
+	      while (rs.next()) {
+	        count = rs.getInt(1);
+	      }
+	      if (count > 0) {
+	        flag = true;
+	      }
+	      if ((rs != null) && (!rs.isClosed())) {
+	        rs.close();
+	      }
+	    }
+	    catch (Exception e)
+	    {
+	      e.printStackTrace();
+	    }
+	    return flag;
+	  }
 }

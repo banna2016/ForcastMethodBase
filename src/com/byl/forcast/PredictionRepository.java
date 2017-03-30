@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.byl.forcast.danma.ExecDanma;
 import com.mysql.jdbc.PreparedStatement;
 
 /**
@@ -28,7 +29,12 @@ public class PredictionRepository
 	 */
 	public void execFirstThreeDanma()
 	{
-		System.out.println("1");
+		//获取源码
+		List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);
+		
+		//使用源码进行预测
+		
+		
 	}
 	/**
 	 * 任选胆码、杀码
@@ -42,7 +48,20 @@ public class PredictionRepository
 	 */
 	public void execDanma()
 	{
-		System.out.println("2");
+		ExecDanma execDanma = new ExecDanma();
+		DataToDb dataToDb = new DataToDb();
+		//判断当期期号是否已经预测，预测则要判断中奖率
+		if(dataToDb.hasRecordByIssueNumber(App.maxIssueId,App.predictionTbName))
+		{//判断中奖率
+			
+		}
+		else
+		{
+			List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);
+			execDanma.execDanma(yuanBeans);
+		}
+		
+		
 	}
 	
 	/**
@@ -114,7 +133,7 @@ public class PredictionRepository
 	* @return List<SrcFiveDataBean>    返回类型 
 	* @throws
 	 */
-	public List<SrcFiveDataBean> getOriginData()
+	public List<SrcFiveDataBean> getOriginData(String lastTimeIssue)//lastTimeIssue：上次获取源码的最后一期的期号
 	{
 		List<SrcFiveDataBean> list = new ArrayList<SrcFiveDataBean>();
 		
@@ -126,24 +145,24 @@ public class PredictionRepository
 			String lArr[] = App.CI_LOCATION_NUMBER.split(",");//获取要使用的数字位置
 			if("0".equals(App.locationOrContain))
 			{//定位
-				list = this.getLocationList(lArr,srcFiveDataBean);
+				list = this.getLocationList(lArr,srcFiveDataBean,lastTimeIssue);
 			}
 			else
 				if("1".equals(App.locationOrContain))
 				{//包含(将开奖号码按从小到大排序，转换AJQ)，和开奖号码中的noArr字段比较包含关系,※NOARR暂时还没用维护的字段
-					list = this.getContainList(lArr,srcFiveDataBean);
+					list = this.getContainList(lArr,srcFiveDataBean,lastTimeIssue);
 				}
 			
 		}
 		else
 			if("1".equals(App.type))
 			{//关联期获取规则
-				list = this.getContactIssueList( srcFiveDataBean);
+				list = this.getContactIssueList( srcFiveDataBean,lastTimeIssue);
 			}
 			else
 				if("2".equals(App.type))
 				{//周期获取规则
-					
+					list = this.getCycleIssueList(srcFiveDataBean,lastTimeIssue);
 				}
 		
 		
@@ -161,7 +180,7 @@ public class PredictionRepository
 	* @return List<SrcFiveDataBean>    返回类型 
 	* @throws
 	 */
-	public List<SrcFiveDataBean> getCycleIssueList(SrcFiveDataBean srcFiveDataBean)
+	public List<SrcFiveDataBean> getCycleIssueList(SrcFiveDataBean srcFiveDataBean,String lastTimeIssue)
 	{
 		List<SrcFiveDataBean> beans = new ArrayList<SrcFiveDataBean>();
 		String issueId = srcFiveDataBean.getIssueId();
@@ -176,7 +195,14 @@ public class PredictionRepository
 		if(App.cycle == 1)
 		{//暂时只写周期1的sql，即获取每天同期号的数据
 			sql.append("SELECT issue_number,no1,no2,no3,no4,no5 FROM "+App.srcNumberTbName+" "
-					+ "WHERE ISSUE_NUMBER LIKE '%"+lastissuenum+"' limit "+App.originIssueCount);
+					+ "WHERE ISSUE_NUMBER LIKE '%"+lastissuenum+"'");
+			
+			if(null != lastTimeIssue && !"".equals(lastTimeIssue))
+			{//若为再次获取源码，则要连接上次获取最小期号的条件
+				sql.append(" and issue_number < "+lastTimeIssue);
+			}
+			
+			sql.append(" ORDER BY ISSUE_NUMBER DESC LIMIT "+App.originIssueCount);
 		}
 		
 		try
@@ -220,7 +246,7 @@ public class PredictionRepository
 	* @return List<SrcFiveDataBean>    返回类型 
 	* @throws
 	 */
-	public List<SrcFiveDataBean> getContactIssueList(SrcFiveDataBean srcFiveDataBean)
+	public List<SrcFiveDataBean> getContactIssueList(SrcFiveDataBean srcFiveDataBean,String lastTimeIssue)
 	{
 		List<SrcFiveDataBean> beans = new ArrayList<SrcFiveDataBean>();
 		List<SrcFiveDataBean> yuanBeans = new ArrayList<SrcFiveDataBean>();
@@ -306,7 +332,7 @@ public class PredictionRepository
 		try
 		{
 		      //筛选源码
-		      yuanBeans = this.getLastIssue(beans, lcConditions, crConditions, null,yuanBeans,
+		      yuanBeans = this.getLastIssue(beans, lcConditions, crConditions, lastTimeIssue,yuanBeans,
 		    		   pstmt, rs, conn);
 					
 		}
@@ -375,11 +401,13 @@ public class PredictionRepository
 			crConditions.append(" and issue_number<"+lastIssue);
 		}
 		
-		String sql = "select issue_number,no1,no2,no3,no4,no5 from "+App.srcNumberTbName+" where "+crConditions+" limit 1000";
+		StringBuffer sql = new StringBuffer("select issue_number,no1,no2,no3,no4,no5 from "+App.srcNumberTbName+" "
+				+ "where "+crConditions);
 		
+		sql.append(" ORDER BY ISSUE_NUMBER DESC LIMIT 500");
 		try
 		{
-			pstmt = (PreparedStatement)conn.prepareStatement(sql);
+			pstmt = (PreparedStatement)conn.prepareStatement(sql.toString());
 			rs = pstmt.executeQuery();
 		      while (rs.next())
 		      {
@@ -419,7 +447,8 @@ public class PredictionRepository
 	* @return List<SrcFiveDataBean>    返回类型 
 	* @throws
 	 */
-	public List<SrcFiveDataBean> getContainList(String lArr[] ,SrcFiveDataBean srcFiveDataBean)
+	public List<SrcFiveDataBean> getContainList(String lArr[] ,SrcFiveDataBean srcFiveDataBean,
+			String lastTimeIssue)
 	{
 		List<SrcFiveDataBean> beans = new ArrayList<SrcFiveDataBean>();
 		
@@ -452,10 +481,16 @@ public class PredictionRepository
 		}
 		
 		//NOARR:需要添加到采集数据时计算的字段，将开奖号码按照小到大排序，然后转换位AJQ存储
-		String sql = "select issue_number,no1,no2,no3,no4,no5 from "+App.srcNumberTbName+" where NOARR like '"+condistions +"' limit "+App.originIssueCount;
+		StringBuffer sql = new StringBuffer("select issue_number,no1,no2,no3,no4,no5 from "+App.srcNumberTbName+" "
+				+ "where NOARR like '"+condistions +"'") ;
+		if(null != lastTimeIssue && !"".equals(lastTimeIssue))
+		{//若为再次获取源码，则要连接上次获取最小期号的条件
+			sql.append(" and issue_number < "+lastTimeIssue);
+		}
+		sql.append(" order by issue_number desc limit "+App.originIssueCount);
 		try
 		{
-			pstmt = (PreparedStatement)conn.prepareStatement(sql);
+			pstmt = (PreparedStatement)conn.prepareStatement(sql.toString());
 			rs = pstmt.executeQuery();
 		      while (rs.next())
 		      {
@@ -494,7 +529,8 @@ public class PredictionRepository
 	* @return List<SrcFiveDataBean>    返回类型 
 	* @throws
 	 */
-	public List<SrcFiveDataBean> getLocationList(String lArr[] ,SrcFiveDataBean srcFiveDataBean)
+	public List<SrcFiveDataBean> getLocationList(String lArr[] ,SrcFiveDataBean srcFiveDataBean,
+			String lastTimeIssue)
 	{
 		List<SrcFiveDataBean> beans = new ArrayList<SrcFiveDataBean>();
 		
@@ -518,11 +554,18 @@ public class PredictionRepository
 			}
 		}
 		
-		String sql = "select issue_number,no1,no2,no3,no4,no5 from "+App.srcNumberTbName+" where "+condistions +" limit "+App.originIssueCount;
+		StringBuffer sql = new StringBuffer("select issue_number,no1,no2,no3,no4,no5 from "+App.srcNumberTbName+" "
+				+ "where "+condistions +" ");
+		if(null != lastTimeIssue && !"".equals(lastTimeIssue))
+		{//若为再次获取源码，则要连接上次获取最小期号的条件
+			sql.append(" and issue_number < "+lastTimeIssue);
+		}
+		
+		sql.append(" ORDER BY ISSUE_NUMBER DESC LIMIT "+App.originIssueCount);
 		
 		try
 		{
-			pstmt = (PreparedStatement)conn.prepareStatement(sql);
+			pstmt = (PreparedStatement)conn.prepareStatement(sql.toString());
 			rs = pstmt.executeQuery();
 		      while (rs.next())
 		      {
@@ -566,12 +609,48 @@ public class PredictionRepository
 	* @return List<SrcFiveDataBean>    返回类型 
 	* @throws
 	 */
-	public List<SrcFiveDataBean> getOriginDataExpect(int number,String issueNumber)
+	public List<SrcFiveDataBean> getFlowData(List<SrcFiveDataBean> yuanBeans,String nplan)
 	{
 		List<SrcFiveDataBean> list = new ArrayList<SrcFiveDataBean>();
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Connection conn = ConnectSrcDb.getSrcConnection();
 		
+		StringBuffer sql = new StringBuffer();
+		try
+		{
+			for(int i=0;i<yuanBeans.size();i++)
+			{
+				sql.setLength(0);
+				sql.append("select issue_number,no1,no2,no3,no4,no5 from "+App.srcNumberTbName+" "
+						+ "where issue_number >"+yuanBeans.get(i).getIssueId()+" limit "+nplan);
+				
+				 while (rs.next())
+			      {
+			    	SrcFiveDataBean srcDataBean = new SrcFiveDataBean();
+			        srcDataBean.setIssueId(rs.getString(1));
+			        srcDataBean.setNo1(rs.getInt(2));
+			        srcDataBean.setNo2(rs.getInt(3));
+			        srcDataBean.setNo3(rs.getInt(4));
+			        srcDataBean.setNo4(rs.getInt(5));
+			        srcDataBean.setNo5(rs.getInt(6));
+			        
+			        list.add(srcDataBean);
+			      }
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			ConnectSrcDb.dbClose(conn, pstmt, rs);
+		}
 		
 		
 		return list;
 	}
+	
+	
 }

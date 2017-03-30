@@ -66,6 +66,9 @@ public class App
 	
 	public static int cycle;
 	
+	public static String number;//当前彩种的号码池号码个数
+	
+	
 	private static void initParam()
 	  {
 	    Properties p = new Properties();
@@ -89,6 +92,7 @@ public class App
 	    ltptypetbName = p.getProperty("ltptypetbName");
 	    baseptypetbName = p.getProperty("baseptypetbName");
 	    originruleTbName = p.getProperty("originRuletbName");
+	    number = p.getProperty("number");
 	  }
 	
 	
