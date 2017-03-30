@@ -8,14 +8,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
 
-public class ConnectDesDb {
+public class ConnectLTDb {
 	  
-	 private static ConnectDesDb instance = null;
+	 private static ConnectLTDb instance = null;
 	  
 	  public static synchronized Connection getConnection()
 	  {
 	    if (instance == null) {
-	      instance = new ConnectDesDb();
+	      instance = new ConnectLTDb();
 	    }
 	    return instance._getConnection();
 	  }
@@ -33,9 +33,9 @@ public class ConnectDesDb {
 	        .getResourceAsStream("db.properties");
 	      p.load(is);
 	      driver = p.getProperty("driver", "");
-	      url = p.getProperty("des.url", "");
-	      username = p.getProperty("des.username", "");
-	      password = p.getProperty("des.password", "");
+	      url = p.getProperty("lp.url", "");
+	      username = p.getProperty("username", "");
+	      password = p.getProperty("password", "");
 	      
 	      Properties pr = new Properties();
 	      pr.put("user", username);
@@ -46,21 +46,30 @@ public class ConnectDesDb {
 	      Class.forName(driver).newInstance();
 	      return DriverManager.getConnection(url, pr);
 	    }
-	    catch (Exception se) {}
-	    return null;
+	    catch (Exception se) {
+	    	se.printStackTrace();
+	    	return null;
+	    }
+	    
 	  }
 	  
 	  public static void dbClose(Connection conn, PreparedStatement ps, ResultSet rs)
-	    throws SQLException
 	  {
-	    if ((rs != null) && (!rs.isClosed())) {
-	      rs.close();
-	    }
-	    if ((ps != null) && (!ps.isClosed())) {
-	      ps.close();
-	    }
-	    if ((conn != null) && (!conn.isClosed())) {
-	      conn.close();
-	    }
+		  try { 
+			    if ((rs != null) && (!rs.isClosed())) {
+			      
+					rs.close();
+			    }
+			    if ((ps != null) && (!ps.isClosed())) {
+			      ps.close();
+			    }
+			    if ((conn != null) && (!conn.isClosed())) {
+			      conn.close();
+			    }
+	    
+		  } catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	  }
 }

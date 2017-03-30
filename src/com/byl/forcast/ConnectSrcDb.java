@@ -3,6 +3,8 @@ package com.byl.forcast;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -52,5 +54,25 @@ public class ConnectSrcDb
       se.printStackTrace();
     }
     return null;
+  }
+  
+  public static void dbClose(Connection conn, PreparedStatement ps, ResultSet rs)
+  {
+	  try { 
+		    if ((rs != null) && (!rs.isClosed())) {
+		      
+				rs.close();
+		    }
+		    if ((ps != null) && (!ps.isClosed())) {
+		      ps.close();
+		    }
+		    if ((conn != null) && (!conn.isClosed())) {
+		      conn.close();
+		    }
+    
+	  } catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
   }
 }
