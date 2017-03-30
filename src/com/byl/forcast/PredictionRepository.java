@@ -138,7 +138,7 @@ public class PredictionRepository
 		else
 			if("1".equals(App.type))
 			{//关联期获取规则
-				
+				list = this.getContactIssueList( srcFiveDataBean);
 			}
 			else
 				if("2".equals(App.type))
@@ -148,6 +148,64 @@ public class PredictionRepository
 		
 		
 		return list;
+	}
+	
+	/**
+	 * 按照周期获取规则获取源码
+	* @Title: getCycleIssueList 
+	* @Description: TODO(这里用一句话描述这个方法的作用) 
+	* @param @param srcFiveDataBean
+	* @param @return    设定文件 
+	* @author banna
+	* @date 2017年3月30日 上午10:46:41 
+	* @return List<SrcFiveDataBean>    返回类型 
+	* @throws
+	 */
+	public List<SrcFiveDataBean> getCycleIssueList(SrcFiveDataBean srcFiveDataBean)
+	{
+		List<SrcFiveDataBean> beans = new ArrayList<SrcFiveDataBean>();
+		String issueId = srcFiveDataBean.getIssueId();
+		String lastissuenum = issueId.substring(issueId.length()-2);//获取后两位
+		
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Connection conn = ConnectSrcDb.getSrcConnection();
+		
+		StringBuffer sql = new StringBuffer();
+		
+		if(App.cycle == 1)
+		{//暂时只写周期1的sql，即获取每天同期号的数据
+			sql.append("SELECT issue_number,no1,no2,no3,no4,no5 FROM "+App.srcNumberTbName+" "
+					+ "WHERE ISSUE_NUMBER LIKE '%"+lastissuenum+"' limit "+App.originIssueCount);
+		}
+		
+		try
+		{
+			pstmt = (PreparedStatement)conn.prepareStatement(sql.toString());
+			rs = pstmt.executeQuery();
+		      while (rs.next())
+		      {
+		    	SrcFiveDataBean srcDataBean = new SrcFiveDataBean();
+		        srcDataBean.setIssueId(rs.getString(1));
+		        srcDataBean.setNo1(rs.getInt(2));
+		        srcDataBean.setNo2(rs.getInt(3));
+		        srcDataBean.setNo3(rs.getInt(4));
+		        srcDataBean.setNo4(rs.getInt(5));
+		        srcDataBean.setNo5(rs.getInt(6));
+		        
+		        beans.add(srcDataBean);
+		      }
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			ConnectSrcDb.dbClose(conn, pstmt, rs);
+		}
+		
+		return beans;
 	}
 	
 	/**
@@ -162,7 +220,7 @@ public class PredictionRepository
 	* @return List<SrcFiveDataBean>    返回类型 
 	* @throws
 	 */
-	public List<SrcFiveDataBean> getContactIssueList(String lArr[] ,SrcFiveDataBean srcFiveDataBean)
+	public List<SrcFiveDataBean> getContactIssueList(SrcFiveDataBean srcFiveDataBean)
 	{
 		List<SrcFiveDataBean> beans = new ArrayList<SrcFiveDataBean>();
 		List<SrcFiveDataBean> yuanBeans = new ArrayList<SrcFiveDataBean>();

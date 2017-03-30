@@ -64,8 +64,7 @@ public class App
 	
 	public static String maxIssueId;
 	
-	
-	
+	public static int cycle;
 	
 	private static void initParam()
 	  {

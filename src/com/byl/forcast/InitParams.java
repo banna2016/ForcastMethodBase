@@ -63,7 +63,7 @@ public class InitParams
 		    if(null != App.originId && !"".equals(App.originId))
 		    {//获取源码规则的相关属性
 		    	
-		    	String sql3 = "select TYPE,LOCATION_OR_CONTAIN,CI_LOCATION_NUMBER,CI_RULE_FILED,LI_LOCATION_NUMBER,LI_RULE_FILED from "+App.originruleTbName+" where id = '"+basePtypeId+"'";
+		    	String sql3 = "select TYPE,LOCATION_OR_CONTAIN,CI_LOCATION_NUMBER,CI_RULE_FILED,LI_LOCATION_NUMBER,LI_RULE_FILED,CYCLE from "+App.originruleTbName+" where id = '"+basePtypeId+"'";
 			    
 		    	  pstmt = (PreparedStatement)conn.prepareStatement(sql3);
 				
@@ -78,6 +78,7 @@ public class InitParams
 			        	App.CI_RULE_FILED = rs.getString(4);
 			        	App.LI_LOCATION_NUMBER = rs.getString(5);
 			        	App.LI_RULE_FILED = rs.getString(6);
+			        	App.cycle = rs.getInt(7);
 			        }
 			      }
 		    	
