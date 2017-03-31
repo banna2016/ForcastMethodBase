@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.byl.forcast.danma.DanmaYuce;
+
 public class DataToDb 
 {
 	public String findMaxIssueIdFromSrcDb()
@@ -121,5 +123,53 @@ public class DataToDb
 	      e.printStackTrace();
 	    }
 	    return flag;
+	  }
+	
+	/**
+	 * 获取当前期号对应的预测结果
+	* @Title: getYuceRecordByIssueNumber 
+	* @Description: TODO(这里用一句话描述这个方法的作用) 
+	* @param @param issueNumber
+	* @param @param tbName
+	* @param @return    设定文件 
+	* @author banna
+	* @date 2017年3月31日 下午5:06:34 
+	* @return DanmaYuce    返回类型 
+	* @throws
+	 */
+	public DanmaYuce getYuceRecordByIssueNumber(String issueNumber, String tbName)
+	  {
+	    Connection srcConn = ConnectLTDb.getConnection();
+	    DanmaYuce danmaYuce = new DanmaYuce();
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+	    String sql = "SELECT PREDICTION_TYPE,EXPERT_ID,ISSUE_NUMBER,DANMA_ONE,DANMA_TWO,"
+	    		+ "SHAMA_ONE,SHAMA_TWO FROM " + tbName + " where issue_number = '" + issueNumber + "'";
+	    try
+	    {
+	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);
+	      rs = pstmt.executeQuery();
+	      while (rs.next()) 
+	      {
+	         if(rs.isFirst())
+	         {
+	        	 danmaYuce.setPREDICTION_TYPE(rs.getString(1));
+	        	 danmaYuce.setEXPERT_ID(rs.getString(2));
+	        	 danmaYuce.setISSUE_NUMBER(rs.getString(3));
+	        	 danmaYuce.setDANMA_ONE(rs.getString(4));
+	        	 danmaYuce.setDANMA_TWO(rs.getString(5));
+	        	 danmaYuce.setSHAMA_ONE(rs.getString(6));
+	        	 danmaYuce.setSHAMA_TWO(rs.getString(7));
+	         }
+	      }
+	    }
+	    catch (Exception e)
+	    {
+	      e.printStackTrace();
+	    }
+	    finally{
+	    	ConnectLTDb.dbClose(srcConn, pstmt, rs);
+	    }
+	    return danmaYuce;
 	  }
 }

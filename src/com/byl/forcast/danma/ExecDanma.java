@@ -11,6 +11,7 @@ import java.util.Map;
 
 import com.byl.forcast.App;
 import com.byl.forcast.ConnectLTDb;
+import com.byl.forcast.DataToDb;
 import com.byl.forcast.FiveInCount;
 import com.byl.forcast.PredictionRepository;
 import com.byl.forcast.SrcFiveDataBean;
@@ -445,5 +446,121 @@ public class ExecDanma
 	public void updateDanAndShaStatus()
 	{
 		System.out.println("统计中奖率");
+		//获取当期开奖号码
+		DataToDb dataToDb = new DataToDb();
+		SrcFiveDataBean curIssue = dataToDb.getRecordByIssueCode(App.maxIssueId);
+		List<String> numList = new ArrayList<String>();
+		numList.add(App.translate(curIssue.getNo1()));
+		numList.add(App.translate(curIssue.getNo2()));
+		numList.add(App.translate(curIssue.getNo3()));
+		//判断胆码中奖率
+		//1.获取胆码
+		DanmaYuce danmaYuce = dataToDb.getYuceRecordByIssueNumber(curIssue.getIssueId(), App.predictionTbName);
+		String dudanstatus = "0";//0:未中，1：正确
+		String shuangdanstatus = "0";//0:未中，1：正确
+		String danstatus = "0";//0:未中，1：正确
+		String dantwo[] = danmaYuce.getDANMA_TWO().split("");
+		List<String> dantwolist = new ArrayList<String>();
+		for (String str : dantwo)
+		{
+			dantwolist.add(str);
+		}
+		if(numList.contains(danmaYuce.getDANMA_ONE()))
+		{//判断独胆是否中出，若中出，则双胆也中出
+			dudanstatus = "1";
+			shuangdanstatus = "1";
+			//判断双胆第二码是否中出，若中出则全中
+			dantwolist.remove(danmaYuce.getDANMA_ONE());//移除中出的独胆
+			boolean flag = false;
+			for (int i=0;i<dantwolist.size();i++) 
+			{
+				if(numList.contains(dantwolist.get(i)))
+				{
+					flag = true;
+				}
+				else
+				{
+					if(i != 0)
+					{
+						flag = false;
+					}
+				}
+			}
+			if(flag)
+			{
+				danstatus = "1";//双胆全部中出
+			}
+		}
+		else
+		{
+			dantwolist.remove(danmaYuce.getDANMA_ONE());//移除中出的独胆
+			boolean flag = false;
+			for (int i=0;i<dantwolist.size();i++) 
+			{
+				if(numList.contains(dantwolist.get(i)))
+				{
+					flag = true;
+				}
+				else
+				{
+					if(i != 0)
+					{
+						flag = false;
+					}
+				}
+			}
+			if(flag)
+			{
+				shuangdanstatus = "1";//独胆未中，双胆中一则正确
+			}
+		}
+		
+		
+		//判断杀码中奖率
+		String shasan[] = danmaYuce.getSHAMA_TWO().split("");//杀三码
+		String shaer[] = danmaYuce.getSHAMA_ONE().split("");//杀二码
+		List<String> shasanlist = new ArrayList<String>();
+		List<String> shaerlist = new ArrayList<String>();
+
+		for (String ss : shasan) 
+		{
+			shasanlist.add(ss);
+		}
+		
+		for (String ss1 : shaer) 
+		{
+			shaerlist.add(ss1);
+		}
+		
+		String flagshasan = "1";//杀三码是否中出
+		String flagshaer = "1";//杀二码是否中出
+		for (String string : shasanlist) 
+		{
+			if(numList.contains(string))
+			{
+				flagshasan = "0";//只要包含一个前三开奖号码，则杀三码预测失败
+				if(shaerlist.contains(string))
+				{//若杀二码中也包含这个号码，则杀二也预测失败
+					flagshaer = "0";
+				}
+				break;
+			}
+		}
+		if(flagshaer.equals("1"))
+		{
+			for (String string : shaerlist) 
+			{
+				if(numList.contains(string))
+				{
+					flagshaer = "0";//只要包含一个前三开奖号码，则杀二码预测失败
+					break;
+				}
+			}
+		}
+		
+		
+		//判断专家各个指标预测准确率
+		
+		
 	}
 }
