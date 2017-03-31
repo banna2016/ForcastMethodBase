@@ -1,13 +1,20 @@
 package com.byl.forcast.danma;
 
+import java.sql.Connection;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.byl.forcast.App;
+import com.byl.forcast.ConnectLTDb;
 import com.byl.forcast.FiveInCount;
 import com.byl.forcast.PredictionRepository;
 import com.byl.forcast.SrcFiveDataBean;
+import com.mysql.jdbc.PreparedStatement;
 
 public class ExecDanma 
 {
@@ -20,21 +27,21 @@ public class ExecDanma
 		flowbeans = pre.getFlowData(yuanBeans, App.nPlan);
 		
 		//根据流码进行预测
-		int[] count = new int[Integer.parseInt(App.number)];
+		int[] count = new int[App.number];
 		
 		for (SrcFiveDataBean bean : flowbeans) 
 		{
-			int[] numIntArr = { bean.getNo1(), bean.getNo2(), bean.getNo3() };
-			
+			int[] numIntArr = {bean.getNo1(),bean.getNo2(),bean.getNo3()};
+				
 			for (int i : numIntArr)
 			{
-				count[(numIntArr[i] - 1)] += 1;
+				count[i - 1] += 1;
 			}
 		}
 		
 		//统计前三号码开奖次数
 		List<FiveInCount> countlist = new ArrayList();
-		for(int j=0;j<Integer.parseInt(App.number);j++)
+		for(int j=0;j<App.number;j++)
 		{
 			FiveInCount fcount = new FiveInCount();
 			
@@ -45,88 +52,398 @@ public class ExecDanma
 		}
 		
 		Collections.sort(countlist);
-		
-		//判断独胆和次胆以及次胆后号码出现次数是否相同(可优化，比较相同次数直到没有可以优化的为止)
-		if(countlist.get(0).getCount1().equals(countlist.get(1).getCount1()))
-		{//如果独胆和次胆出现次数相同，那么再取流码看独胆出现还是次胆出现，出现的是独胆，没出现的是次胆
-			int dudan ;
-			int cidan;
-			int[] dudanArr = new int[2];
-			dudanArr[0] = countlist.get(0).getNumber();
-			dudanArr[1] = countlist.get(1).getNumber();
+		List<FiveInCount> danList = new ArrayList<FiveInCount>();
+		//1.判断是否有和独胆出现次数相同的数字
+		int countEqual = (int) this.judgeEqualCount(countlist,0).get("countEqual");//相同号码出现次数
+		if(countEqual != 0)
+		{//有相同出现次数的号码
+//			int[] dudanArr = new int[countEqual];
+			List<Integer> dudanArr = new ArrayList<Integer>();
+			for(int s = 0;s<countEqual;s++)
+			{
+//				dudanArr[s] = countlist.get(s).getNumber();//获取和独胆出现次数相同的号码
+				dudanArr.add(countlist.get(s).getNumber());
+			}
+			//获取源码
 			List<SrcFiveDataBean> newYuan = pre.getOriginData(yuanBeans.get(yuanBeans.size()-1).getIssueId());
 			//找出新的流码
 			flowbeans = pre.getFlowData(newYuan, App.nPlan);
-			List<Integer> compare = new ArrayList<Integer>();
-			for(int n = 0;n<flowbeans.size();n++)
-			{
-				compare.clear();
-				compare.add(flowbeans.get(n).getNo1());
-				compare.add(flowbeans.get(n).getNo2());
-				compare.add(flowbeans.get(n).getNo3());
-				
-				if(compare.contains(dudanArr[0]) && !compare.contains(dudanArr[1]))
-				{//有1没有2
-					dudan = dudanArr[0];
-					cidan = dudanArr[1];
-					break;
-				}
-				else
-					if(!compare.contains(dudanArr[0]) && compare.contains(dudanArr[1]))
-					{//有1没有2
-						dudan = dudanArr[1];
-						cidan = dudanArr[0];
-						break;
-					}
-					else
-					{//都不包含这两个数字
-						continue;
-					}
-				
-			}
-				
-			
+			//调用方法获取胆码
+			danList = this.findDanma(dudanArr, flowbeans,2);
+//			inserToDb(danList);
 		}
 		else
-			if(countlist.get(1).getCount1().equals(countlist.get(2).getCount1()))
-			{//如果次胆和次胆后号码出现的次数相同，则再次获取流码比较，出现的是次胆
-				int[] cidanArr = new int[2];
-				cidanArr[0] = countlist.get(1).getNumber();
-				cidanArr[1] = countlist.get(2).getNumber();
-				
-				int cidan;
-				
+		{//
+			danList.add(countlist.get(0));//放入独胆数据
+			
+			int ciCountEqual = (int) this.judgeEqualCount(countlist,1).get("countEqual");//次胆相同号码出现次数
+			
+			if(ciCountEqual != 0)
+			{
+//				int[] cidanArr = new int[ciCountEqual];
+				List<Integer> cidanArr = new ArrayList<Integer>();
+				for(int s = 1;s <ciCountEqual+1;s++)
+				{
+//					cidanArr[s-1] = countlist.get(s).getNumber();//获取和独胆出现次数相同的号码
+					cidanArr.add(countlist.get(s).getNumber());
+				}
+				//获取源码
 				List<SrcFiveDataBean> newYuan = pre.getOriginData(yuanBeans.get(yuanBeans.size()-1).getIssueId());
 				//找出新的流码
 				flowbeans = pre.getFlowData(newYuan, App.nPlan);
-				List<Integer> compare = new ArrayList<Integer>();
-				for(int n = 0;n<flowbeans.size();n++)
+				//调用方法获取胆码
+				List<FiveInCount> cidanlist = this.findDanma(cidanArr, flowbeans,1);//次胆有相同次数只需要找一个次胆号码即可
+				
+				danList.add(cidanlist.get(0));//向胆码list中添加次胆数据
+			}
+			else
+			{
+				danList.add(countlist.get(1));//放入次胆数据
+			}
+		}
+		
+		//杀码统计
+		List<FiveInCount> shalist = new ArrayList<FiveInCount>();
+		int countShaEqual = (int) this.judgeShaEqualCount(countlist,countlist.size()).get("countEqual");//相同号码出现次数
+		if(countShaEqual != 0 && countShaEqual > 2)
+		{//有相同出现次数的号码
+//			int[] shamaArr = new int[countShaEqual];
+			List<Integer> shamaArr = new ArrayList<Integer>();
+			for(int s = countlist.size()-1;s>=countlist.size()-countShaEqual;s--)
+			{
+				shamaArr.add(countlist.get(s).getNumber());
+//				shamaArr[s] = countlist.get(s).getNumber();//获取和独胆出现次数相同的号码
+			}
+			//获取源码
+			List<SrcFiveDataBean> newYuan = pre.getOriginData(yuanBeans.get(yuanBeans.size()-1).getIssueId());
+			//找出新的流码
+			flowbeans = pre.getFlowData(newYuan, App.nPlan);
+			//调用方法获取胆码
+			shalist = this.findShama(shamaArr, flowbeans,2);
+//			inserToDb(danList);
+		}
+		else
+		{
+			shalist.add(countlist.get(countlist.size()-1));//放入杀一码数据
+			shalist.add(countlist.get(countlist.size()-2));//放入杀二码数据
+			if(countShaEqual<=2)
+			{//
+				countShaEqual = (int) this.judgeShaEqualCount(countlist,countlist.size()-2).get("countEqual");//杀三码相同号码出现次数
+				
+				if(countShaEqual != 0)
 				{
-					compare.clear();
-					compare.add(flowbeans.get(n).getNo1());
-					compare.add(flowbeans.get(n).getNo2());
-					compare.add(flowbeans.get(n).getNo3());
+//					int[] shasanArr = new int[countShaEqual];
+					List<Integer> shasanArr = new ArrayList<Integer>();
+					int size = countlist.size();
+					int s1 = 0;
+					for(int s = size-1-2;s>size-1-2-countShaEqual;s--)//开始位置是杀三码开始的位置
+					{
+//						shasanArr[s1] = countlist.get(s).getNumber();//获取和独胆出现次数相同的号码
+//						s1++;
+						shasanArr.add(countlist.get(s).getNumber());
+					}
+					//获取源码
+					List<SrcFiveDataBean> newYuan = pre.getOriginData(yuanBeans.get(yuanBeans.size()-1).getIssueId());
+					//找出新的流码
+					flowbeans = pre.getFlowData(newYuan, App.nPlan);
+					//调用方法获取胆码
+					List<FiveInCount> shasanlist = this.findShama(shasanArr, flowbeans,1);//杀三码
 					
-					if(compare.contains(cidanArr[0]) && !compare.contains(cidanArr[1]))
-					{//有1没有2
-						cidan  = cidanArr[0];
+					shalist.add(shasanlist.get(0));//向胆码list中添加次胆数据
+				}
+				else
+				{
+					shalist.add(countlist.get(countlist.size()-1-2));//放入杀三码
+				}
+			}
+		
+		}
+		
+		//插入数据库
+		inserToDb(danList,shalist);
+		
+	}
+	
+	//查找胆码
+	private List<FiveInCount> findDanma(List<Integer> duArr,List<SrcFiveDataBean> flowData,int dancount)//dancount:获取胆码个数
+	{
+		List<FiveInCount> list = new ArrayList<FiveInCount>();
+		
+		for (SrcFiveDataBean bean : flowData) 
+		{
+			//取出号码转换为AJQ格式字符串
+			StringBuffer flowstr = new StringBuffer(App.translate(bean.getNo1()));
+			flowstr.append(App.translate(bean.getNo2()));
+			flowstr.append(App.translate(bean.getNo3()));
+			flowstr.append(App.translate(bean.getNo4()));
+			flowstr.append(App.translate(bean.getNo5()));
+			
+			boolean flag = false;//判断当期流码是否包含一个胆码待选，包含一个是true
+			List<Integer> newarr = new ArrayList<Integer>();//新筛选出的数字
+			
+			for (Integer number : duArr) 
+			{
+				if(flowstr.toString().contains(App.translate(number)))
+				{
+					if(newarr.size()==0)
+					{
+						flag = true;
+						newarr.add(number);
+					}
+					else
+						if(flag)
+						{//如果之前已经有加入的新筛选数字，则当期流码中存在多个胆码待选，则要继续使用流码筛选
+							newarr.add(number);
+							flag = false;
+						}
+				}
+				
+			}
+			
+			if(flag)
+			{
+				if(list.size()<dancount)
+				{
+					FiveInCount fcount = new FiveInCount();
+					fcount.setNumber(newarr.get(0));
+					list.add(fcount);
+					duArr.remove(newarr.get(0));//移除已经筛选出的胆码
+					
+					if(list.size() == dancount)
+					{
 						break;
 					}
 					else
-						if(!compare.contains(cidanArr[0]) && compare.contains(cidanArr[1]))
-						{//有1没有2
-							cidan = cidanArr[1];
+						if(duArr.size()+1 == dancount)
+						{
+							for (Integer duint : duArr) 
+							{
+								FiveInCount count = new FiveInCount();
+								fcount.setNumber(duint);
+								list.add(fcount);
+							}
 							break;
 						}
-						else
-						{//都不包含这两个数字
-							continue;
+				}
+				else
+				{
+					break;//已获取到独胆和次胆号码，结束流码循环
+				}
+			}
+			else
+			{//重置胆码筛选
+				if(newarr.size() != 0)
+				{
+					if(newarr.size()>=dancount)
+					{
+						duArr.removeAll(duArr);
+						for (int ns = 0;ns<newarr.size();ns++)
+						{
+							duArr.add(newarr.get(ns));
 						}
+					}
 					
 				}
 			}
+			
+		}
+		
+		return list;
 	}
 	
+	//查找杀码
+	private List<FiveInCount> findShama(List<Integer> shaArr,List<SrcFiveDataBean> flowData,int shacount)//shacount:获取杀码个数
+	{
+		List<FiveInCount> list = new ArrayList<FiveInCount>();
+		
+		
+		List<Integer> linshi = null;
+		for (SrcFiveDataBean bean : flowData) 
+		{
+			//取出号码转换为AJQ格式字符串
+			StringBuffer flowstr = new StringBuffer(App.translate(bean.getNo1()));
+			flowstr.append(App.translate(bean.getNo2()));
+			flowstr.append(App.translate(bean.getNo3()));
+			flowstr.append(App.translate(bean.getNo4()));
+			flowstr.append(App.translate(bean.getNo5()));
+			
+			boolean flag = true;//判断当期流码是否不包含一个杀码待选，包含一个是true
+			List<Integer> newarr = new ArrayList<Integer>();//新筛选出的数字
+			
+			for (Integer number : shaArr) 
+			{
+				if(flowstr.toString().contains(App.translate(number)))
+				{
+					flag = false;
+					newarr.add(number);
+					
+				}
+				
+			}
+			
+			if(flag)
+			{
+				continue;
+			}
+			else
+			{//有杀码待选出现在list中,则移除
+				if(shaArr.size() == shacount)
+				{//若杀码待选数组的长度与要获取的杀码个数相同，则跳出循环
+					for (Integer integer : shaArr) 
+					{
+						FiveInCount fcount = new FiveInCount();
+						fcount.setNumber(integer);
+						list.add(fcount);
+					}
+					
+					break;
+				}
+				else
+				{
+					if(shaArr.size()>shacount)
+					{//移除出现的数字
+						linshi = new ArrayList<Integer>();
+						//备份筛选号码，如果全部移除则要重新赋值
+						for (Integer shalin : shaArr) {
+							linshi.add(shalin);
+						}
+						for (Integer integer : newarr) 
+						{
+							shaArr.remove(integer);
+						}
+						if(shaArr.size()<shacount && shaArr.size()!=0)
+						{
+							for (Integer integer : shaArr) 
+							{
+								FiveInCount fcount = new FiveInCount();
+								fcount.setNumber(integer);
+								list.add(fcount);
+							}
+							
+							//将剩余的号码继续给数组去判断
+							for (Integer shaint : shaArr) 
+							{
+								linshi.remove(shaint);//从临时中移除已经确认为杀码的数字
+							}
+							shaArr = linshi;
+						}
+						else
+							if(shaArr.size() == shacount)
+							{
+								for (Integer integer : shaArr) 
+								{
+									FiveInCount fcount = new FiveInCount();
+									fcount.setNumber(integer);
+									list.add(fcount);
+								}
+								
+								break;
+							}
+							else
+								if(shaArr.size() == 0)
+								{
+									//因为所有待选的杀码都出现在这一期流码中，则重新比较
+									shaArr = linshi;
+								}
+					}
+				}
+			}
+			
+		}
+		
+		return list;
+	}
 	
+	/**
+	 * 判断统计结果中相同次数的号码
+	* @Title: judgeEqualCount 
+	* @Description: TODO(这里用一句话描述这个方法的作用) 
+	* @param @param countlist
+	* @param @return    设定文件 
+	* @author banna
+	* @date 2017年3月31日 上午9:29:12 
+	* @return Map<String,Object>    返回类型 
+	* @throws
+	 */
+	private Map<String,Object> judgeEqualCount(List<FiveInCount> countlist,int start)
+	{
+		Map<String,Object> result = new HashMap<String,Object>();
+		
+		int count1  = countlist.get(start).getCount1();//当前出现次数第一位的号码的出现次数
+		int countEqual = 0;//出现相同出现次数的号码个数
+		for(int i=start+1;i<countlist.size();i++)
+		{
+			if(countlist.get(i).getCount1() == count1)
+			{//与第一位数字出现次数相同
+				countEqual++;
+			}
+			else
+			{//若第二位都和第一位的出现次数不同，则不需要再进行比较
+				break;
+			}
+		}
+		result.put("countEqual", countEqual);
+		return result;
+	}
+	//判断杀码相同出现次数的号码
+	private Map<String,Object> judgeShaEqualCount(List<FiveInCount> countlist,int end)
+	{
+		Map<String,Object> result = new HashMap<String,Object>();
+		
+		int count1  = countlist.get(end-1).getCount1();//当前出现次数第一位的号码的出现次数
+		int countEqual = 0;//出现相同出现次数的号码个数
+		for(int i=end-1 ;i >=0; i--)
+		{
+			if(countlist.get(i).getCount1() == count1)
+			{//与第一位数字出现次数相同
+				countEqual++;
+			}
+			else
+			{//若第二位都和第一位的出现次数不同，则不需要再进行比较
+				break;
+			}
+		}
+		result.put("countEqual", countEqual);
+		return result;
+	}
 	
+	//插入胆码预测结果到数据库
+	private void inserToDb(List<FiveInCount> danlist,List<FiveInCount> shalist)
+	{
+		//期号是代码中最大期号的下一期
+		String nextIssue = App.getNextIssueByCurrentIssue(App.maxIssueId);
+		 PreparedStatement pstmt = null;
+		Connection conn = ConnectLTDb.getConnection();
+	    String sql = "insert into " + App.predictionTbName + " "
+	    		+ "(issue_number,DANMA_ONE,DANMA_TWO,CREATE_TIME,PREDICTION_TYPE,EXPERT_ID,SHAMA_ONE,SHAMA_TWO) "
+	    		+ "values(?,?,?,?,?,?,?,?)";
+	    try
+	    {
+	    	pstmt = (PreparedStatement)conn.prepareStatement(sql);
+	 	    pstmt.setString(1, nextIssue);
+	 	    pstmt.setString(2, App.translate(danlist.get(0).getNumber()));
+	 	    pstmt.setString(3, App.translate(danlist.get(0).getNumber())+App.translate(danlist.get(1).getNumber()));
+	 	    pstmt.setTimestamp(4, new Timestamp(new Date().getTime()));
+	 	    pstmt.setString(5, App.ptypeid);
+	 	    pstmt.setString(6, App.beid);
+	 	    pstmt.setString(7, App.translate(shalist.get(0).getNumber())+App.translate(shalist.get(1).getNumber()));
+	 	    pstmt.setString(8, App.translate(shalist.get(0).getNumber())+App.translate(shalist.get(1).getNumber())+App.translate(shalist.get(2).getNumber()));
+	 	    pstmt.executeUpdate();
+	    }
+	   catch(Exception e)
+	    {
+		   e.printStackTrace();
+	    }
+	    finally
+	    {
+	    	ConnectLTDb.dbClose(conn, pstmt, null);
+	    }
+		
+	}
+	
+	//更新当前预测的准确率
+	public void updateDanAndShaStatus()
+	{
+		System.out.println("统计中奖率");
+	}
 }

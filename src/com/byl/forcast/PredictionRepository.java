@@ -53,7 +53,7 @@ public class PredictionRepository
 		//判断当期期号是否已经预测，预测则要判断中奖率
 		if(dataToDb.hasRecordByIssueNumber(App.maxIssueId,App.predictionTbName))
 		{//判断中奖率
-			
+			execDanma.updateDanAndShaStatus();
 		}
 		else
 		{
@@ -202,7 +202,7 @@ public class PredictionRepository
 				sql.append(" and issue_number < "+lastTimeIssue);
 			}
 			
-			sql.append(" ORDER BY ISSUE_NUMBER DESC LIMIT "+App.originIssueCount);
+			sql.append(" and issue_number!="+srcFiveDataBean.getIssueId()+"  ORDER BY ISSUE_NUMBER DESC LIMIT "+App.originDataCount);
 		}
 		
 		try
@@ -333,7 +333,7 @@ public class PredictionRepository
 		{
 		      //筛选源码
 		      yuanBeans = this.getLastIssue(beans, lcConditions, crConditions, lastTimeIssue,yuanBeans,
-		    		   pstmt, rs, conn);
+		    		   pstmt, rs, conn,srcFiveDataBean);
 					
 		}
 		catch(Exception e)
@@ -351,9 +351,9 @@ public class PredictionRepository
 	//获取符合条件的源码
 	public List<SrcFiveDataBean> getLastIssue(List<SrcFiveDataBean> beans,StringBuffer lcConditions,
 			StringBuffer crConditions,String lastIssue,List<SrcFiveDataBean> yuanBeans,
-			 PreparedStatement pstmt,ResultSet rs,Connection conn) throws Exception
+			 PreparedStatement pstmt,ResultSet rs,Connection conn,SrcFiveDataBean srcFiveDataBean) throws Exception
 	{
-		  beans = this.getCurrentIssue(crConditions, lastIssue);
+		  beans = this.getCurrentIssue(crConditions, lastIssue,srcFiveDataBean);
 		
 		  if(null != beans && beans.size()>0)
 		  {
@@ -379,7 +379,7 @@ public class PredictionRepository
 			  
 			 if(yuanBeans.size()<App.originDataCount)
 			 {//若源码数量没有达到源码数据量要求，则要再获取当期数据再次筛选源码
-				 this.getLastIssue(beans, lcConditions, crConditions, lastIssue, yuanBeans, pstmt, rs, conn);
+				 this.getLastIssue(beans, lcConditions, crConditions, lastIssue, yuanBeans, pstmt, rs, conn,srcFiveDataBean);
 			 }
 		  }
 		  
@@ -389,7 +389,7 @@ public class PredictionRepository
 	
 	
 	//关联期源码获取--获取当期符合条件数据
-	public List<SrcFiveDataBean> getCurrentIssue(StringBuffer crConditions,String lastIssue)
+	public List<SrcFiveDataBean> getCurrentIssue(StringBuffer crConditions,String lastIssue,SrcFiveDataBean srcFiveDataBean)
 	{
 		List<SrcFiveDataBean> beans = new ArrayList<SrcFiveDataBean>();
 		PreparedStatement pstmt = null;
@@ -404,7 +404,7 @@ public class PredictionRepository
 		StringBuffer sql = new StringBuffer("select issue_number,no1,no2,no3,no4,no5 from "+App.srcNumberTbName+" "
 				+ "where "+crConditions);
 		
-		sql.append(" ORDER BY ISSUE_NUMBER DESC LIMIT 500");
+		sql.append(" and issue_number!="+srcFiveDataBean.getIssueId()+" ORDER BY ISSUE_NUMBER DESC LIMIT 500");
 		try
 		{
 			pstmt = (PreparedStatement)conn.prepareStatement(sql.toString());
@@ -487,7 +487,7 @@ public class PredictionRepository
 		{//若为再次获取源码，则要连接上次获取最小期号的条件
 			sql.append(" and issue_number < "+lastTimeIssue);
 		}
-		sql.append(" order by issue_number desc limit "+App.originIssueCount);
+		sql.append(" and issue_number!="+srcFiveDataBean.getIssueId()+" order by issue_number desc limit "+App.originDataCount);
 		try
 		{
 			pstmt = (PreparedStatement)conn.prepareStatement(sql.toString());
@@ -561,7 +561,7 @@ public class PredictionRepository
 			sql.append(" and issue_number < "+lastTimeIssue);
 		}
 		
-		sql.append(" ORDER BY ISSUE_NUMBER DESC LIMIT "+App.originIssueCount);
+		sql.append(" and issue_number!="+srcFiveDataBean.getIssueId()+" ORDER BY ISSUE_NUMBER DESC LIMIT "+App.originDataCount);
 		
 		try
 		{
@@ -624,7 +624,8 @@ public class PredictionRepository
 				sql.setLength(0);
 				sql.append("select issue_number,no1,no2,no3,no4,no5 from "+App.srcNumberTbName+" "
 						+ "where issue_number >"+yuanBeans.get(i).getIssueId()+" limit "+nplan);
-				
+				pstmt = (PreparedStatement)conn.prepareStatement(sql.toString());
+				rs = pstmt.executeQuery();
 				 while (rs.next())
 			      {
 			    	SrcFiveDataBean srcDataBean = new SrcFiveDataBean();

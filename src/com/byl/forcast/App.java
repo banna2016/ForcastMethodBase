@@ -46,7 +46,6 @@ public class App
 	
 	public static String nPlan ;//n期计划
 	
-	public static String originIssueCount ;//源码要求数量
 	
 	public static String originId ;
 	
@@ -62,11 +61,11 @@ public class App
 	
 	public static String LI_RULE_FILED;
 	
-	public static String maxIssueId;
+	public static String maxIssueId = "17033146";
 	
 	public static int cycle;
 	
-	public static String number;//当前彩种的号码池号码个数
+	public static int number;//当前彩种的号码池号码个数
 	
 	
 	private static void initParam()
@@ -92,15 +91,24 @@ public class App
 	    ltptypetbName = p.getProperty("ltptypetbName");
 	    baseptypetbName = p.getProperty("baseptypetbName");
 	    originruleTbName = p.getProperty("originRuletbName");
-	    number = p.getProperty("number");
+	    number = Integer.parseInt(p.getProperty("number"));
 	  }
 	
 	
 	public static void main(String args[])
 	{
-		initParam();//初始化需要的参数
 		
-		Timer timer = new Timer();
+		try
+		{
+			initParam();
+			exctPredict();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		/*Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
@@ -115,7 +123,7 @@ public class App
 				
 			}
 		}, new Date(), 10000L);// 每隔10s输出
-	}
+*/	}
 	
 	/**
 	 * 开始预测
@@ -134,7 +142,7 @@ public class App
 		DataToDb dataToDb = new DataToDb();
 		String maxIssueNumber = dataToDb.findMaxIssueIdFromSrcDb();
 		
-		if(!App.maxIssueId.equals(maxIssueNumber))
+		if( null == App.maxIssueId||!App.maxIssueId.equals(maxIssueNumber))
 		{
 			App.maxIssueId = maxIssueNumber;
 		}
@@ -170,6 +178,26 @@ public class App
 			
 		}
 	}
+	
+	public static String getNextIssueByCurrentIssue(String issueNumber)
+	  {
+	    String issueCode = issueNumber.substring(issueNumber.length() - 2, issueNumber.length());
+	    int issue = Integer.parseInt(issueCode);
+	    int nextIssue = (issue + 1) % Integer.parseInt(lineCount);
+	    if (nextIssue > 9) 
+	    {
+	      return issueNumber.substring(0, issueNumber.length() - 2) + nextIssue;
+	    }
+	    if (nextIssue == 0)
+	    {
+	      return issueNumber.substring(0, issueNumber.length() - 2) + lineCount;
+	    }
+	    if (nextIssue == 1) 
+	    {
+	      return DateUtil.getNextDay(issueNumber.substring(0, issueNumber.length() - 2)) + "01";
+	    }
+	    return issueNumber.substring(0, issueNumber.length() - 2) + "0" + nextIssue;
+	  }
 	
 	  public static String translate(int temp)
 	  {

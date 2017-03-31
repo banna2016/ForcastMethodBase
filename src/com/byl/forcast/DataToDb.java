@@ -97,11 +97,11 @@ public class DataToDb
 	
 	public boolean hasRecordByIssueNumber(String issueNumber, String tbName)
 	  {
-	    Connection srcConn = ConnectSrcDb.getSrcConnection();
+	    Connection srcConn = ConnectLTDb.getConnection();
 	    boolean flag = false;
 	    int count = 0;
 	    PreparedStatement pstmt = null;
-	    String sql = "SELECT count(*) count FROM " + tbName + " where issue_number = '" + issueNumber + "'";
+	    String sql = "SELECT count(0) FROM " + tbName + " where issue_number = '" + issueNumber + "'";
 	    try
 	    {
 	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);

@@ -43,7 +43,7 @@ public class InitParams
 		    //根据基本预测类型id获取方法名
 		    if(null != basePtypeId && !"".equals(basePtypeId))
 		    {
-		    	  String sql2 = "select METHOD_NAME,N_PLAN,ORIGIN_DATA_SIZE,ORGINDATA_RULE_ID from "+App.baseptypetbName+" where id = '"+basePtypeId+"'";
+		    	  String sql2 = "select METHOD_NAME,N_PLAN,ORIGIN_DATA_SIZE,ORGINDATA_RULE_ID,ORIGIN_DATA_SIZE from "+App.baseptypetbName+" where id = '"+basePtypeId+"'";
 				    
 		    	  pstmt = (PreparedStatement)conn.prepareStatement(sql2);
 				
@@ -56,6 +56,7 @@ public class InitParams
 			        	App.nPlan = rs.getString(2);
 			        	App.originDataCount = rs.getInt(3);
 			        	App.originId = rs.getString(4);
+			        	App.originDataCount = rs.getInt(5);
 			        }
 			      }
 		    }
@@ -63,7 +64,8 @@ public class InitParams
 		    if(null != App.originId && !"".equals(App.originId))
 		    {//获取源码规则的相关属性
 		    	
-		    	String sql3 = "select TYPE,LOCATION_OR_CONTAIN,CI_LOCATION_NUMBER,CI_RULE_FILED,LI_LOCATION_NUMBER,LI_RULE_FILED,CYCLE from "+App.originruleTbName+" where id = '"+basePtypeId+"'";
+		    	String sql3 = "select TYPE,LOCATION_OR_CONTAIN,CI_LOCATION_NUMBER,CI_RULE_FILED,LI_LOCATION_NUMBER,LI_RULE_FILED,CYCLE from "+App.originruleTbName+""
+		    			+ " where id = '"+App.originId+"'";
 			    
 		    	  pstmt = (PreparedStatement)conn.prepareStatement(sql3);
 				
