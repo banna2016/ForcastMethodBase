@@ -27,7 +27,7 @@ public class PredictionRepository
 	* @return void    返回类型 
 	* @throws
 	 */
-	public void execFirstThreeDanma()
+	public void execRenDanma()
 	{
 		//获取源码
 		List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);

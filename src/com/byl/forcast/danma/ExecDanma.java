@@ -196,7 +196,7 @@ public class ExecDanma
 						newarr.add(number);
 					}
 					else
-						if(flag)
+						if(flag && newarr.size()>0)
 						{//如果之前已经有加入的新筛选数字，则当期流码中存在多个胆码待选，则要继续使用流码筛选
 							newarr.add(number);
 							flag = false;
@@ -224,8 +224,8 @@ public class ExecDanma
 							for (Integer duint : duArr) 
 							{
 								FiveInCount count = new FiveInCount();
-								fcount.setNumber(duint);
-								list.add(fcount);
+								count.setNumber(duint);
+								list.add(count);
 							}
 							break;
 						}
