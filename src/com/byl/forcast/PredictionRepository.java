@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.byl.forcast.danma.ExecDanma;
+import com.byl.forcast.renDanAndShama.ExecRenDanma;
 import com.mysql.jdbc.PreparedStatement;
 
 /**
@@ -29,11 +30,23 @@ public class PredictionRepository
 	 */
 	public void execRenDanma()
 	{
-		//获取源码
-		List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);
-		
-		//使用源码进行预测
-		
+		ExecRenDanma execRenDanma = new ExecRenDanma();
+		DataToDb dataToDb = new DataToDb();
+		//判断当期期号是否已经预测，预测则要判断中奖率
+		if(dataToDb.hasRecordByIssueNumber(App.maxIssueId,App.predictionTbName))
+		{//判断中奖率
+			execRenDanma.updateDanAndShaStatus();
+			System.out.println("判断任胆中奖率");
+			//判断完这期中奖率再预测下一期
+			List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);
+			execRenDanma.execRenDanma(yuanBeans);
+		}
+		else
+		{
+			List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);
+			execRenDanma.execRenDanma(yuanBeans);
+			System.out.println("开始任胆预测");
+		}
 		
 	}
 	/**
@@ -549,7 +562,7 @@ public class PredictionRepository
 		for (int i=0;i<lArr.length;i++) 
 		{
 			location = lArr[i];
-			if(i > 1 )
+			if(i > 0 )
 			{
 				condistions.append(" and  no"+location+" = "+srcFiveDataBean.numberMap.get("no"+location) );
 			}

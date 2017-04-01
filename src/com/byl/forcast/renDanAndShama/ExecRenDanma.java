@@ -1,10 +1,9 @@
-package com.byl.forcast.danma;
+package com.byl.forcast.renDanAndShama;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -14,17 +13,17 @@ import java.util.Map;
 
 import com.byl.forcast.App;
 import com.byl.forcast.ConnectLTDb;
-import com.byl.forcast.ConnectSrcDb;
 import com.byl.forcast.DataToDb;
 import com.byl.forcast.FiveInCount;
 import com.byl.forcast.PredictionRepository;
 import com.byl.forcast.SrcFiveDataBean;
+import com.byl.forcast.danma.DanmaYuce;
 import com.mysql.jdbc.PreparedStatement;
 
-public class ExecDanma 
+public class ExecRenDanma 
 {
 	//预测前三胆码杀码
-	public void execDanma(List<SrcFiveDataBean> yuanBeans)
+	public void execRenDanma(List<SrcFiveDataBean> yuanBeans)
 	{
 		//根据源码获取流码
 		PredictionRepository pre = new PredictionRepository();
@@ -36,7 +35,8 @@ public class ExecDanma
 		
 		for (SrcFiveDataBean bean : flowbeans) 
 		{
-			int[] numIntArr = {bean.getNo1(),bean.getNo2(),bean.getNo3()};
+			//获取5码组合
+			int[] numIntArr = {bean.getNo1(),bean.getNo2(),bean.getNo3(),bean.getNo4(),bean.getNo5()};
 				
 			for (int i : numIntArr)
 			{
@@ -44,7 +44,7 @@ public class ExecDanma
 			}
 		}
 		
-		//统计前三号码开奖次数
+		//统计任号码开奖次数
 		List<FiveInCount> countlist = new ArrayList();
 		for(int j=0;j<App.number;j++)
 		{
@@ -62,11 +62,10 @@ public class ExecDanma
 		int countEqual = (int) this.judgeEqualCount(countlist,0).get("countEqual");//相同号码出现次数
 		if(countEqual != 0)
 		{//有相同出现次数的号码
-//			int[] dudanArr = new int[countEqual];
 			List<Integer> dudanArr = new ArrayList<Integer>();
 			for(int s = 0;s<=countEqual;s++)
 			{
-//				dudanArr[s] = countlist.get(s).getNumber();//获取和独胆出现次数相同的号码
+				//获取和独胆出现次数相同的号码
 				dudanArr.add(countlist.get(s).getNumber());
 			}
 			//获取源码
@@ -74,93 +73,35 @@ public class ExecDanma
 			//找出新的流码
 			flowbeans = pre.getFlowData(newYuan, App.nPlan);
 			//调用方法获取胆码
-			danList = this.findDanma(dudanArr, flowbeans,2);
+			danList = this.findDanma(dudanArr, flowbeans,1);
 //			inserToDb(danList);
 		}
 		else
 		{//
 			danList.add(countlist.get(0));//放入独胆数据
-			
-			int ciCountEqual = (int) this.judgeEqualCount(countlist,1).get("countEqual");//次胆相同号码出现次数
-			
-			if(ciCountEqual != 0)
-			{
-//				int[] cidanArr = new int[ciCountEqual];
-				List<Integer> cidanArr = new ArrayList<Integer>();
-				for(int s = 1;s <ciCountEqual+1;s++)
-				{
-//					cidanArr[s-1] = countlist.get(s).getNumber();//获取和独胆出现次数相同的号码
-					cidanArr.add(countlist.get(s).getNumber());
-				}
-				//获取源码
-				List<SrcFiveDataBean> newYuan = pre.getOriginData(yuanBeans.get(yuanBeans.size()-1).getIssueId());
-				//找出新的流码
-				flowbeans = pre.getFlowData(newYuan, App.nPlan);
-				//调用方法获取胆码
-				List<FiveInCount> cidanlist = this.findDanma(cidanArr, flowbeans,1);//次胆有相同次数只需要找一个次胆号码即可
-				
-				danList.add(cidanlist.get(0));//向胆码list中添加次胆数据
-			}
-			else
-			{
-				danList.add(countlist.get(1));//放入次胆数据
-			}
 		}
 		
 		//杀码统计
 		List<FiveInCount> shalist = new ArrayList<FiveInCount>();
 		int countShaEqual = (int) this.judgeShaEqualCount(countlist,countlist.size()).get("countEqual");//相同号码出现次数
-		if(countShaEqual != 0 && countShaEqual > 2)
+		if(countShaEqual != 0 )
 		{//有相同出现次数的号码
-//			int[] shamaArr = new int[countShaEqual];
 			List<Integer> shamaArr = new ArrayList<Integer>();
 			for(int s = countlist.size()-1;s>=countlist.size()-countShaEqual;s--)
 			{
+				//获取和杀一码出现次数相同的号码
 				shamaArr.add(countlist.get(s).getNumber());
-//				shamaArr[s] = countlist.get(s).getNumber();//获取和独胆出现次数相同的号码
 			}
 			//获取源码
 			List<SrcFiveDataBean> newYuan = pre.getOriginData(yuanBeans.get(yuanBeans.size()-1).getIssueId());
 			//找出新的流码
 			flowbeans = pre.getFlowData(newYuan, App.nPlan);
 			//调用方法获取胆码
-			shalist = this.findShama(shamaArr, flowbeans,2);
-//			inserToDb(danList);
+			shalist = this.findShama(shamaArr, flowbeans,1);
 		}
 		else
 		{
 			shalist.add(countlist.get(countlist.size()-1));//放入杀一码数据
-			shalist.add(countlist.get(countlist.size()-2));//放入杀二码数据
-			if(countShaEqual<=2)
-			{//
-				countShaEqual = (int) this.judgeShaEqualCount(countlist,countlist.size()-2).get("countEqual");//杀三码相同号码出现次数
-				
-				if(countShaEqual != 0)
-				{
-//					int[] shasanArr = new int[countShaEqual];
-					List<Integer> shasanArr = new ArrayList<Integer>();
-					int size = countlist.size();
-					int s1 = 0;
-					for(int s = size-1-2;s>size-1-2-countShaEqual;s--)//开始位置是杀三码开始的位置
-					{
-//						shasanArr[s1] = countlist.get(s).getNumber();//获取和独胆出现次数相同的号码
-//						s1++;
-						shasanArr.add(countlist.get(s).getNumber());
-					}
-					//获取源码
-					List<SrcFiveDataBean> newYuan = pre.getOriginData(yuanBeans.get(yuanBeans.size()-1).getIssueId());
-					//找出新的流码
-					flowbeans = pre.getFlowData(newYuan, App.nPlan);
-					//调用方法获取胆码
-					List<FiveInCount> shasanlist = this.findShama(shasanArr, flowbeans,1);//杀三码
-					
-					shalist.add(shasanlist.get(0));//向胆码list中添加次胆数据
-				}
-				else
-				{
-					shalist.add(countlist.get(countlist.size()-1-2));//放入杀三码
-				}
-			}
 		
 		}
 		
@@ -180,7 +121,8 @@ public class ExecDanma
 			StringBuffer flowstr = new StringBuffer(App.translate(bean.getNo1()));
 			flowstr.append(App.translate(bean.getNo2()));
 			flowstr.append(App.translate(bean.getNo3()));
-			
+			flowstr.append(App.translate(bean.getNo4()));
+			flowstr.append(App.translate(bean.getNo5()));
 			
 			boolean flag = false;//判断当期流码是否包含一个胆码待选，包含一个是true
 			List<Integer> newarr = new ArrayList<Integer>();//新筛选出的数字
@@ -268,6 +210,8 @@ public class ExecDanma
 			StringBuffer flowstr = new StringBuffer(App.translate(bean.getNo1()));
 			flowstr.append(App.translate(bean.getNo2()));
 			flowstr.append(App.translate(bean.getNo3()));
+			flowstr.append(App.translate(bean.getNo4()));
+			flowstr.append(App.translate(bean.getNo5()));
 			
 			boolean flag = true;//判断当期流码是否不包含一个杀码待选，包含一个是true
 			List<Integer> newarr = new ArrayList<Integer>();//新筛选出的数字
@@ -278,7 +222,6 @@ public class ExecDanma
 				{
 					flag = false;
 					newarr.add(number);
-					
 				}
 				
 			}
@@ -417,19 +360,17 @@ public class ExecDanma
 		 PreparedStatement pstmt = null;
 		Connection conn = ConnectLTDb.getConnection();
 	    String sql = "insert into " + App.predictionTbName + " "
-	    		+ "(issue_number,DANMA_ONE,DANMA_TWO,CREATE_TIME,PREDICTION_TYPE,EXPERT_ID,SHAMA_ONE,SHAMA_TWO) "
-	    		+ "values(?,?,?,?,?,?,?,?)";
+	    		+ "(issue_number,DANMA_ONE,CREATE_TIME,PREDICTION_TYPE,EXPERT_ID,SHAMA_ONE) "
+	    		+ "values(?,?,?,?,?,?)";
 	    try
 	    {
 	    	pstmt = (PreparedStatement)conn.prepareStatement(sql);
 	 	    pstmt.setString(1, nextIssue);
 	 	    pstmt.setString(2, App.translate(danlist.get(0).getNumber()));
-	 	    pstmt.setString(3, App.translate(danlist.get(0).getNumber())+App.translate(danlist.get(1).getNumber()));
-	 	    pstmt.setTimestamp(4, new Timestamp(new Date().getTime()));
-	 	    pstmt.setString(5, App.ptypeid);
-	 	    pstmt.setString(6, App.beid);
-	 	    pstmt.setString(7, App.translate(shalist.get(0).getNumber())+App.translate(shalist.get(1).getNumber()));
-	 	    pstmt.setString(8, App.translate(shalist.get(0).getNumber())+App.translate(shalist.get(1).getNumber())+App.translate(shalist.get(2).getNumber()));
+	 	    pstmt.setTimestamp(3, new Timestamp(new Date().getTime()));
+	 	    pstmt.setString(4, App.ptypeid);
+	 	    pstmt.setString(5, App.beid);
+	 	    pstmt.setString(6, App.translate(shalist.get(0).getNumber()));
 	 	    pstmt.executeUpdate();
 	    }
 	   catch(Exception e)
@@ -453,116 +394,32 @@ public class ExecDanma
 		numList.add(App.translate(curIssue.getNo1()));
 		numList.add(App.translate(curIssue.getNo2()));
 		numList.add(App.translate(curIssue.getNo3()));
+		numList.add(App.translate(curIssue.getNo4()));
+		numList.add(App.translate(curIssue.getNo5()));
+		
 		StringBuffer drownNumber = new StringBuffer();
 		for (String string : numList) 
 		{
 			drownNumber.append(string);
 		}
+		
 		//1.判断胆码中奖率
 		//1.获取胆码
-		DanmaYuce danmaYuce = dataToDb.getYuceRecordByIssueNumber(curIssue.getIssueId(), App.predictionTbName);
+		DanmaYuce danmaYuce = dataToDb.getRenDanYuceRecordByIssueNumber(curIssue.getIssueId(), App.predictionTbName);
 		String dudanstatus = "0";//0:未中，1：正确
-		String shuangdanstatus = "0";//0:未中，1：正确
-		String danstatus = "0";//0:未中，1：正确
-		String dantwo[] = danmaYuce.getDANMA_TWO().split("");
-		List<String> dantwolist = new ArrayList<String>();
-		for (String str : dantwo)
-		{
-			dantwolist.add(str);
-		}
 		if(numList.contains(danmaYuce.getDANMA_ONE()))
 		{//判断独胆是否中出，若中出，则双胆也中出
 			dudanstatus = "1";
-			shuangdanstatus = "1";
-			//判断双胆第二码是否中出，若中出则全中
-			dantwolist.remove(danmaYuce.getDANMA_ONE());//移除中出的独胆
-			boolean flag = false;
-			for (int i=0;i<dantwolist.size();i++) 
-			{
-				if(numList.contains(dantwolist.get(i)))
-				{
-					flag = true;
-				}
-				else
-				{
-					if(i != 0)
-					{
-						flag = false;
-					}
-				}
-			}
-			if(flag)
-			{
-				danstatus = "1";//双胆全部中出
-			}
-		}
-		else
-		{
-			dantwolist.remove(danmaYuce.getDANMA_ONE());//移除中出的独胆
-			boolean flag = false;
-			for (int i=0;i<dantwolist.size();i++) 
-			{
-				if(numList.contains(dantwolist.get(i)))
-				{
-					flag = true;
-				}
-				else
-				{
-					if(i != 0)
-					{
-						flag = false;
-					}
-				}
-			}
-			if(flag)
-			{
-				shuangdanstatus = "1";//独胆未中，双胆中一则正确
-			}
 		}
 		
 		
 		//2.判断杀码中奖率
-		String shasan[] = danmaYuce.getSHAMA_TWO().split("");//杀三码
-		String shaer[] = danmaYuce.getSHAMA_ONE().split("");//杀二码
-		List<String> shasanlist = new ArrayList<String>();
-		List<String> shaerlist = new ArrayList<String>();
-
-		for (String ss : shasan) 
-		{
-			shasanlist.add(ss);
-		}
 		
-		for (String ss1 : shaer) 
+		String flagshayi = "1";//杀一码是否中出
+		if(numList.contains(danmaYuce.getSHAMA_ONE()))
 		{
-			shaerlist.add(ss1);
+			flagshayi = "0";
 		}
-		
-		String flagshasan = "1";//杀三码是否中出
-		String flagshaer = "1";//杀二码是否中出
-		for (String string : shasanlist) 
-		{
-			if(numList.contains(string))
-			{
-				flagshasan = "0";//只要包含一个前三开奖号码，则杀三码预测失败
-				if(shaerlist.contains(string))
-				{//若杀二码中也包含这个号码，则杀二也预测失败
-					flagshaer = "0";
-				}
-				break;
-			}
-		}
-		if(flagshaer.equals("1"))
-		{
-			for (String string : shaerlist) 
-			{
-				if(numList.contains(string))
-				{
-					flagshaer = "0";//只要包含一个前三开奖号码，则杀二码预测失败
-					break;
-				}
-			}
-		}
-		
 		
 		//更新准确率到数据库
 		PreparedStatement pstmt = null;
@@ -576,10 +433,7 @@ public class ExecDanma
 			
 			sql.append("update "+App.predictionTbName+" set "
 					+ " DUDAN_STATUS="+dudanstatus+" ,"
-					+ " SHUANGDAN_STATUS="+shuangdanstatus+" ,"
-					+ " DANMA_STATUS="+danstatus+" ,"
-					+ " SHAMAER_STATUS="+flagshaer+" ,"
-					+ " SHAMASAN_STATUS="+flagshasan+" ,"
+					+ " SHAMAYI_STATUS="+flagshayi+" ,"
 					+ " DROWN_NUMBER='"+drownNumber+"' "
 					+ " where"
 					+ " ISSUE_NUMBER="+App.maxIssueId+" and "
@@ -595,31 +449,17 @@ public class ExecDanma
 			double countAll = limitnumber;//all
 			double countZJ = dataToDb.getCountOfexpertprediction("DUDAN_STATUS", false,limitnumber);//获取中奖的独胆
 			double dudanZJL = countZJ/countAll;
-			//2)计算双胆准确率
-			countZJ = dataToDb.getCountOfexpertprediction("SHUANGDAN_STATUS", false,limitnumber);//获取中奖的
-			double shuangdanZJL = countZJ/countAll;
-			//3)计算双胆全对准确率
-			countAll = limitnumber;//all
-			countZJ = dataToDb.getCountOfexpertprediction("DANMA_STATUS", false,limitnumber);//获取中奖的
-			double danmaZJL = countZJ/countAll;
 			
-			//4)计算杀二码全对准确率
+			//4)计算杀一码全对准确率
 			countAll = limitnumber;//all
-			countZJ = dataToDb.getCountOfexpertprediction("SHAMAER_STATUS", false,limitnumber);//获取中奖的
-			double shaerZJL = countZJ/countAll;
-			//5)计算杀三码全对准确率
-			countAll = limitnumber;//all
-			countZJ = dataToDb.getCountOfexpertprediction("SHAMASAN_STATUS", false,limitnumber);//获取中奖的
-			double shasanZJL = countZJ/countAll;
+			countZJ = dataToDb.getCountOfexpertprediction("SHAMAYI_STATUS", false,limitnumber);//获取中奖的
+			double shayiZJL = countZJ/countAll;
 			
 			//更新预测到当前期为止该专家的中奖几率
 			StringBuffer sqlzjl =new StringBuffer();
 			sqlzjl.append("update "+App.predictionTbName+" set "
 					+ " WIN_RATE_DUDAN="+dudanZJL+" ,"
-					+ " WIN_RATE_SHUANGDAN="+shuangdanZJL+" ,"
-					+ " WIN_RATE_DANMA="+danmaZJL+" ,"
-					+ " WIN_RATE_SHAER="+shaerZJL+" ,"
-					+ " WIN_RATE_SHASAN="+shasanZJL+" "
+					+ " WIN_RATE_SHAYI="+shayiZJL+" "
 					+ " where"
 					+ " ISSUE_NUMBER="+App.maxIssueId+" and "
 					+ " EXPERT_ID='"+App.beid+"' and "

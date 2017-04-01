@@ -174,6 +174,52 @@ public class DataToDb
 	  }
 	
 	/**
+	 * 获取任胆任杀
+	* @Title: getRenDanYuceRecordByIssueNumber 
+	* @Description: TODO(这里用一句话描述这个方法的作用) 
+	* @param @param issueNumber
+	* @param @param tbName
+	* @param @return    设定文件 
+	* @author banna
+	* @date 2017年4月1日 下午3:55:12 
+	* @return DanmaYuce    返回类型 
+	* @throws
+	 */
+	public DanmaYuce getRenDanYuceRecordByIssueNumber(String issueNumber, String tbName)
+	  {
+	    Connection srcConn = ConnectLTDb.getConnection();
+	    DanmaYuce danmaYuce = new DanmaYuce();
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+	    String sql = "SELECT PREDICTION_TYPE,EXPERT_ID,ISSUE_NUMBER,DANMA_ONE,"
+	    		+ "SHAMA_ONE FROM " + tbName + " where issue_number = '" + issueNumber + "'";
+	    try
+	    {
+	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);
+	      rs = pstmt.executeQuery();
+	      while (rs.next()) 
+	      {
+	         if(rs.isFirst())
+	         {
+	        	 danmaYuce.setPREDICTION_TYPE(rs.getString(1));
+	        	 danmaYuce.setEXPERT_ID(rs.getString(2));
+	        	 danmaYuce.setISSUE_NUMBER(rs.getString(3));
+	        	 danmaYuce.setDANMA_ONE(rs.getString(4));
+	        	 danmaYuce.setSHAMA_ONE(rs.getString(5));
+	         }
+	      }
+	    }
+	    catch (Exception e)
+	    {
+	      e.printStackTrace();
+	    }
+	    finally{
+	    	ConnectLTDb.dbClose(srcConn, pstmt, rs);
+	    }
+	    return danmaYuce;
+	  }
+	
+	/**
 	 * 获取当前专家预测该类型的指定期数内的准确数据量
 	* @Title: getCountOfexpertprediction 
 	* @Description: TODO(这里用一句话描述这个方法的作用) 
@@ -197,7 +243,7 @@ public class DataToDb
 	    
 	    if(null != limitnumber && limitnumber >0)
 	    {
-	    	sql.append("  limit "+limitnumber +" ");
+	    	sql.append(" order by ISSUE_NUMBER desc  limit "+limitnumber +" ");
 	    }
 	    sql.append(" ) a");
 	    

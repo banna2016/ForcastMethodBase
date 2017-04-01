@@ -14,7 +14,7 @@ public class InitParams
 		String basePtypeId = "";
 		
 		//根据预测类型id获取基本预测类型id
-		String sql = "select BASE_PREDICTION_TYPE_ID,LOTTERYPLAY_ID,PREDICTION_TABLE,SANMA_TABLE_NAME,SIMA_TABLE_NAME,LIUMA_TABLE_NAME,LIANGMA_TABLE_NAME"
+		String sql = "select BASE_PREDICTION_TYPE_ID,LOTTERYPLAY_ID,PREDICTION_TABLE,SANMA_TABLE_NAME,SIMA_TABLE_NAME,LIUMA_TABLE_NAME,LIANGMA_TABLE_NAME,ORDER_RULE"
 				+ " from "+App.ltptypetbName+" where id='"+App.ptypeid+"'";
 		
 		PreparedStatement pstmt = null;
@@ -36,6 +36,7 @@ public class InitParams
 		        	App.simatbName = rs.getString(5);
 		        	App.liumatbName = rs.getString(6);
 		        	App.liangmatbName = rs.getString(7);
+		        	App.orderRule = rs.getInt(8);
 		        	
 		        }
 		      }
