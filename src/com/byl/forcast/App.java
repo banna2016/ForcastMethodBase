@@ -61,11 +61,13 @@ public class App
 	
 	public static String LI_RULE_FILED;
 	
-	public static String maxIssueId = "17033146";
+	public static String maxIssueId ;
 	
 	public static int cycle;
 	
 	public static int number;//当前彩种的号码池号码个数
+	
+	public static boolean flag = false;//是否判断中奖率
 	
 	
 	private static void initParam()
@@ -108,7 +110,7 @@ public class App
 			e.printStackTrace();
 		}
 		
-		/*Timer timer = new Timer();
+		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
@@ -122,8 +124,8 @@ public class App
 				}
 				
 			}
-		}, new Date(), 10000L);// 每隔10s输出
-*/	}
+		}, new Date(), 20000L);// 每隔10s输出
+	}
 	
 	/**
 	 * 开始预测
@@ -141,14 +143,16 @@ public class App
 		
 		DataToDb dataToDb = new DataToDb();
 		String maxIssueNumber = dataToDb.findMaxIssueIdFromSrcDb();
-		
+		boolean maxflag = false;
 		if( null == App.maxIssueId||!App.maxIssueId.equals(maxIssueNumber))
 		{
 			App.maxIssueId = maxIssueNumber;
+			System.out.println("maxissueId="+App.maxIssueId);
+			maxflag = true;
 		}
-		
-		if(null != App.methodName && !"".equals(App.methodName ))
+		if(maxflag&&null != App.methodName && !"".equals(App.methodName ))
 		{
+			maxflag = false;
 			//通过反射进入预测方法
 			PredictionRepository predictionRepository = new PredictionRepository();
 			

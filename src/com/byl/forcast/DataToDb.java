@@ -172,4 +172,58 @@ public class DataToDb
 	    }
 	    return danmaYuce;
 	  }
+	
+	/**
+	 * 获取当前专家预测该类型的指定期数内的准确数据量
+	* @Title: getCountOfexpertprediction 
+	* @Description: TODO(这里用一句话描述这个方法的作用) 
+	* @param @param field
+	* @param @param isAll
+	* @param @return    设定文件 
+	* @author banna
+	* @date 2017年4月1日 上午11:26:47 
+	* @return Integer    返回类型 
+	* @throws
+	 */
+	public Integer getCountOfexpertprediction(String field,boolean isAll,Integer limitnumber)
+	  {
+	    Connection srcConn = ConnectLTDb.getConnection();
+	    int count = 0;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+	    StringBuffer sql = new StringBuffer("SELECT count(0) FROM (SELECT * FROM " + App.predictionTbName + " "
+	    		+ "where  EXPERT_ID='"+App.beid+"' and "
+				+ " PREDICTION_TYPE='"+App.ptypeid+"') a ");
+	    if(!isAll)
+	    {
+	    	sql.append(" where "+field+"=1");
+	    	
+	    }
+	    if(null != limitnumber && limitnumber >0)
+	    {
+	    	sql.append("  limit "+limitnumber);
+	    }
+	    
+	    try
+	    {
+	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql.toString());
+	      rs = pstmt.executeQuery();
+	      while (rs.next())
+	      {
+	        if(rs.isFirst())
+	        {
+	        	count=rs.getInt(1);
+	        }
+	      }
+	    }
+	    catch (Exception e)
+	    {
+	      e.printStackTrace();
+	    }
+	    finally
+	    {
+	    	ConnectLTDb.dbClose(srcConn, pstmt, rs);
+	    }
+	    return count;
+	  }
 }

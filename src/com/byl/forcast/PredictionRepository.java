@@ -54,11 +54,16 @@ public class PredictionRepository
 		if(dataToDb.hasRecordByIssueNumber(App.maxIssueId,App.predictionTbName))
 		{//判断中奖率
 			execDanma.updateDanAndShaStatus();
+			System.out.println("判断中奖率");
+			//判断完这期中奖率再预测下一期
+			List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);
+			execDanma.execDanma(yuanBeans);
 		}
 		else
 		{
 			List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);
 			execDanma.execDanma(yuanBeans);
+			System.out.println("开始预测");
 		}
 		
 		

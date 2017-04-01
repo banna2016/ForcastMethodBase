@@ -1,7 +1,10 @@
 package com.byl.forcast.danma;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -11,6 +14,7 @@ import java.util.Map;
 
 import com.byl.forcast.App;
 import com.byl.forcast.ConnectLTDb;
+import com.byl.forcast.ConnectSrcDb;
 import com.byl.forcast.DataToDb;
 import com.byl.forcast.FiveInCount;
 import com.byl.forcast.PredictionRepository;
@@ -60,7 +64,7 @@ public class ExecDanma
 		{//有相同出现次数的号码
 //			int[] dudanArr = new int[countEqual];
 			List<Integer> dudanArr = new ArrayList<Integer>();
-			for(int s = 0;s<countEqual;s++)
+			for(int s = 0;s<=countEqual;s++)
 			{
 //				dudanArr[s] = countlist.get(s).getNumber();//获取和独胆出现次数相同的号码
 				dudanArr.add(countlist.get(s).getNumber());
@@ -445,7 +449,6 @@ public class ExecDanma
 	//更新当前预测的准确率
 	public void updateDanAndShaStatus()
 	{
-		System.out.println("统计中奖率");
 		//获取当期开奖号码
 		DataToDb dataToDb = new DataToDb();
 		SrcFiveDataBean curIssue = dataToDb.getRecordByIssueCode(App.maxIssueId);
@@ -453,7 +456,12 @@ public class ExecDanma
 		numList.add(App.translate(curIssue.getNo1()));
 		numList.add(App.translate(curIssue.getNo2()));
 		numList.add(App.translate(curIssue.getNo3()));
-		//判断胆码中奖率
+		StringBuffer drownNumber = new StringBuffer();
+		for (String string : numList) 
+		{
+			drownNumber.append(string);
+		}
+		//1.判断胆码中奖率
 		//1.获取胆码
 		DanmaYuce danmaYuce = dataToDb.getYuceRecordByIssueNumber(curIssue.getIssueId(), App.predictionTbName);
 		String dudanstatus = "0";//0:未中，1：正确
@@ -516,7 +524,7 @@ public class ExecDanma
 		}
 		
 		
-		//判断杀码中奖率
+		//2.判断杀码中奖率
 		String shasan[] = danmaYuce.getSHAMA_TWO().split("");//杀三码
 		String shaer[] = danmaYuce.getSHAMA_ONE().split("");//杀二码
 		List<String> shasanlist = new ArrayList<String>();
@@ -559,8 +567,88 @@ public class ExecDanma
 		}
 		
 		
-		//判断专家各个指标预测准确率
+		//更新准确率到数据库
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		Connection conn = ConnectLTDb.getConnection();
+		StringBuffer sql = new StringBuffer();
+		
+		try 
+		{
+			pstmt = (PreparedStatement)conn.prepareStatement(sql.toString());
+			
+			sql.append("update T_LN_5IN11_QIANSAN_DANSHAMA set "
+					+ " DUDAN_STATUS="+dudanstatus+" ,"
+					+ " SHUANGDAN_STATUS="+shuangdanstatus+" ,"
+					+ " DANMA_STATUS="+danstatus+" ,"
+					+ " SHAMAER_STATUS="+flagshaer+" ,"
+					+ " SHAMASAN_STATUS="+flagshasan+" ,"
+					+ " DROWN_NUMBER='"+drownNumber+"' "
+					+ " where"
+					+ " ISSUE_NUMBER="+App.maxIssueId+" and "
+					+ " EXPERT_ID='"+App.beid+"' and "
+					+ " PREDICTION_TYPE='"+App.ptypeid+"' ");
+			
+			pstmt.executeUpdate(sql.toString());
+			
+			//3.判断专家各个指标预测准确率
+			//取出当前期的预测结果，然后取出待计算的该专家所有预测结果，然后取出预测准确的数据量，然后进行比例计算，再把结果存入数据库
+			//1)计算胆码准确率
+			int limitnumber = 10;
+			double countAll = limitnumber;//all
+			double countZJ = dataToDb.getCountOfexpertprediction("DUDAN_STATUS", false,limitnumber);//获取中奖的独胆
+			double dudanZJL = countZJ/countAll;
+			//2)计算双胆准确率
+			countZJ = dataToDb.getCountOfexpertprediction("SHUANGDAN_STATUS", false,limitnumber);//获取中奖的
+			double shuangdanZJL = countZJ/countAll;
+			//3)计算双胆全对准确率
+			countAll = limitnumber;//all
+			countZJ = dataToDb.getCountOfexpertprediction("DANMA_STATUS", false,limitnumber);//获取中奖的
+			double danmaZJL = countZJ/countAll;
+			
+			//4)计算杀二码全对准确率
+			countAll = limitnumber;//all
+			countZJ = dataToDb.getCountOfexpertprediction("SHAMAER_STATUS", false,limitnumber);//获取中奖的
+			double shaerZJL = countZJ/countAll;
+			//5)计算杀三码全对准确率
+			countAll = limitnumber;//all
+			countZJ = dataToDb.getCountOfexpertprediction("SHAMASAN_STATUS", false,limitnumber);//获取中奖的
+			double shasanZJL = countZJ/countAll;
+			
+			//更新预测到当前期为止该专家的中奖几率
+			StringBuffer sqlzjl =new StringBuffer();
+			sqlzjl.append("update T_LN_5IN11_QIANSAN_DANSHAMA set "
+					+ " WIN_RATE_DUDAN="+dudanZJL+" ,"
+					+ " WIN_RATE_SHUANGDAN="+shuangdanZJL+" ,"
+					+ " WIN_RATE_DANMA="+danmaZJL+" ,"
+					+ " WIN_RATE_SHAER="+shaerZJL+" ,"
+					+ " WIN_RATE_SHASAN="+shasanZJL+" "
+					+ " where"
+					+ " ISSUE_NUMBER="+App.maxIssueId+" and "
+					+ " EXPERT_ID='"+App.beid+"' and "
+					+ " PREDICTION_TYPE='"+App.ptypeid+"' ");
+			
+			pstmt.executeUpdate(sqlzjl.toString());
+			
+			//TODO:待完成：根据中奖率判断当前专家是否收费
+			
+			
+			
+		} 
+		catch (SQLException e) 
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			ConnectLTDb.dbClose(conn, pstmt, rs);
+		}
+		
 		
 		
 	}
+	
+	
+	
+	
 }

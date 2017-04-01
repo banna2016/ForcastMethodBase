@@ -35,7 +35,7 @@ public class InitBaseTableData
 	    liumaTable = p.getProperty("liumaTable");
 	}
 	
-	public static void main(String args[])
+	/*public static void main(String args[])
 	{
 		try{
 //			initParams();
@@ -45,7 +45,7 @@ public class InitBaseTableData
 		{
 			e.printStackTrace();
 		}
-	}
+	}*/
 	
 	public static void init()
 	{
