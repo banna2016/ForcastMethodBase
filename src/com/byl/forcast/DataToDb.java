@@ -193,16 +193,20 @@ public class DataToDb
 	    ResultSet rs = null;
 	    StringBuffer sql = new StringBuffer("SELECT count(0) FROM (SELECT * FROM " + App.predictionTbName + " "
 	    		+ "where  EXPERT_ID='"+App.beid+"' and "
-				+ " PREDICTION_TYPE='"+App.ptypeid+"') a ");
+				+ " PREDICTION_TYPE='"+App.ptypeid+"' ");
+	    
+	    if(null != limitnumber && limitnumber >0)
+	    {
+	    	sql.append("  limit "+limitnumber +" ");
+	    }
+	    sql.append(" ) a");
+	    
 	    if(!isAll)
 	    {
 	    	sql.append(" where "+field+"=1");
 	    	
 	    }
-	    if(null != limitnumber && limitnumber >0)
-	    {
-	    	sql.append("  limit "+limitnumber);
-	    }
+	    
 	    
 	    try
 	    {
