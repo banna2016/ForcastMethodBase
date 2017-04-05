@@ -73,7 +73,7 @@ public class ExecRenDanma
 			//找出新的流码
 			flowbeans = pre.getFlowData(newYuan, App.nPlan);
 			//调用方法获取胆码
-			danList = this.findDanma(dudanArr, flowbeans,1);
+			danList = this.findDanma(dudanArr, flowbeans,1,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId());
 //			inserToDb(danList);
 		}
 		else
@@ -97,7 +97,7 @@ public class ExecRenDanma
 			//找出新的流码
 			flowbeans = pre.getFlowData(newYuan, App.nPlan);
 			//调用方法获取胆码
-			shalist = this.findShama(shamaArr, flowbeans,1);
+			shalist = this.findShama(shamaArr, flowbeans,1,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId());
 		}
 		else
 		{
@@ -111,7 +111,8 @@ public class ExecRenDanma
 	}
 	
 	//查找胆码
-	private List<FiveInCount> findDanma(List<Integer> duArr,List<SrcFiveDataBean> flowData,int dancount)//dancount:获取胆码个数
+	private List<FiveInCount> findDanma(List<Integer> duArr,List<SrcFiveDataBean> flowData,int dancount,
+			PredictionRepository pre,String smallIssueId)//dancount:获取胆码个数
 	{
 		List<FiveInCount> list = new ArrayList<FiveInCount>();
 		
@@ -193,12 +194,21 @@ public class ExecRenDanma
 			}
 			
 		}
+		if(list.size()<dancount)
+		{
+			//获取源码
+			List<SrcFiveDataBean> newYuan = pre.getOriginData(smallIssueId);
+			//找出新的流码
+			List<SrcFiveDataBean> flowbeans = pre.getFlowData(newYuan, App.nPlan);
+			list = this.findDanma(duArr, flowbeans, dancount, pre, newYuan.get(newYuan.size()-1).getIssueId());
+		}
 		
 		return list;
 	}
 	
 	//查找杀码
-	private List<FiveInCount> findShama(List<Integer> shaArr,List<SrcFiveDataBean> flowData,int shacount)//shacount:获取杀码个数
+	private List<FiveInCount> findShama(List<Integer> shaArr,List<SrcFiveDataBean> flowData,int shacount,
+			PredictionRepository pre,String smallIssueId)//shacount:获取杀码个数
 	{
 		List<FiveInCount> list = new ArrayList<FiveInCount>();
 		
@@ -291,11 +301,54 @@ public class ExecRenDanma
 									shaArr = linshi;
 								}
 					}
+					else
+					{
+						if(list.size()<shacount)//还需要筛选数据
+						{
+							linshi = new ArrayList<Integer>();
+							//备份筛选号码，如果全部移除则要重新赋值
+							for (Integer shalin : shaArr) {
+								linshi.add(shalin);
+							}
+							for (Integer integer : newarr) 
+							{
+								shaArr.remove(integer);
+							}
+							
+							if((shaArr.size()+list.size())<=shacount)//若符合条件的杀码个数和已经筛选出的杀码个数的和是要求获取杀码的数量，则直接将剩余杀码存储返回值
+							{
+								for (Integer integer : shaArr) 
+								{
+									FiveInCount fcount = new FiveInCount();
+									fcount.setNumber(integer);
+									list.add(fcount);
+								}
+							}
+							else
+							{
+								//将剩余的号码继续给数组去判断
+								for (Integer shaint : shaArr) 
+								{
+									linshi.remove(shaint);//从临时中移除已经确认为杀码的数字
+								}
+								shaArr = linshi;
+							}
+							
+							
+						}
+					}
 				}
 			}
 			
 		}
-		
+		if(list.size()<shacount)
+		{//没有取到足够的杀码
+			//获取源码
+			List<SrcFiveDataBean> newYuan = pre.getOriginData(smallIssueId);
+			//找出新的流码
+			List<SrcFiveDataBean> flowbeans = pre.getFlowData(newYuan, App.nPlan);
+			this.findShama(shaArr, flowbeans, shacount,pre,newYuan.get(newYuan.size()-1).getIssueId());
+		}
 		return list;
 	}
 	
