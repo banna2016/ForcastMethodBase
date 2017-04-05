@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.byl.forcast.danma.ExecDanma;
+import com.byl.forcast.qianSLFushi.ExecQSLiumaFushi;
 import com.byl.forcast.renDanAndShama.ExecRenDanma;
 import com.mysql.jdbc.PreparedStatement;
 
@@ -94,8 +95,27 @@ public class PredictionRepository
 	 */
 	public void firstThreeDuplex()
 	{
+		ExecQSLiumaFushi execQSLiumaFushi = new ExecQSLiumaFushi();
+		DataToDb dataToDb = new DataToDb();
+		//判断当期期号是否已经预测，预测则要判断中奖率
+		if(dataToDb.hasRecordByIssueNumber(App.maxIssueId,App.predictionTbName))
+		{//判断中奖率
+			execQSLiumaFushi.updateStatus();
+			System.out.println("判断前三六码复式中奖率");
+			//判断完这期中奖率再预测下一期
+			List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);
+			execQSLiumaFushi.execQSLiumaFushi(yuanBeans);
+		}
+		else
+		{
+			List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);
+			execQSLiumaFushi.execQSLiumaFushi(yuanBeans);
+			System.out.println("开始预测前三六码复式");
+		}
 		
 	}
+	
+	
 	/**
 	 * 任三精选6组
 	* @Title: groupSix 

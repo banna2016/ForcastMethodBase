@@ -93,7 +93,7 @@ public class InsertInitDatatoDB {
 	//СљТы
 	public void liumaData()
 	{
-		Connection conn = ConnectSrcDb.getSrcConnection();
+		Connection conn = ConnectLTDb.getConnection();
 	    
 	    String sql = "insert into " + InitBaseTableData.liumaTable + "() values(?,?)";
 	    try 

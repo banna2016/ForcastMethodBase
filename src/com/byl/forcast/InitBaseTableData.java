@@ -38,8 +38,8 @@ public class InitBaseTableData
 	/*public static void main(String args[])
 	{
 		try{
-//			initParams();
-//			init();
+			initParams();
+			init();
 		}
 		catch(Exception e)
 		{

@@ -103,7 +103,8 @@ public class DataToDb
 	    boolean flag = false;
 	    int count = 0;
 	    PreparedStatement pstmt = null;
-	    String sql = "SELECT count(0) FROM " + tbName + " where issue_number = '" + issueNumber + "'";
+	    String sql = "SELECT count(0) FROM " + tbName + " where issue_number = '" + issueNumber + "' "
+	    		+ "and PREDICTION_TYPE='"+App.ptypeid+"' and EXPERT_ID='"+App.beid+"'";
 	    try
 	    {
 	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);
@@ -144,7 +145,8 @@ public class DataToDb
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
 	    String sql = "SELECT PREDICTION_TYPE,EXPERT_ID,ISSUE_NUMBER,DANMA_ONE,DANMA_TWO,"
-	    		+ "SHAMA_ONE,SHAMA_TWO FROM " + tbName + " where issue_number = '" + issueNumber + "'";
+	    		+ "SHAMA_ONE,SHAMA_TWO FROM " + tbName + " where issue_number = '" + issueNumber + "'  and "
+				+ " PREDICTION_TYPE='"+App.ptypeid+"' and EXPERT_ID='"+App.beid+"'  ";
 	    try
 	    {
 	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);
