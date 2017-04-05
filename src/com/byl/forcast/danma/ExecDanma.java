@@ -124,7 +124,7 @@ public class ExecDanma
 			//找出新的流码
 			flowbeans = pre.getFlowData(newYuan, App.nPlan);
 			//调用方法获取胆码
-			shalist = this.findShama(shamaArr, flowbeans,2);
+			shalist = this.findShama(shamaArr, flowbeans,3);
 //			inserToDb(danList);
 		}
 		else
