@@ -313,7 +313,7 @@ public class ExecDanma
 						{
 							shaArr.remove(integer);
 						}
-						if(shaArr.size()<shacount && shaArr.size()!=0)
+						if(shaArr.size()<shacount && shaArr.size()!=0)//
 						{
 							for (Integer integer : shaArr) 
 							{
@@ -347,6 +347,42 @@ public class ExecDanma
 									//因为所有待选的杀码都出现在这一期流码中，则重新比较
 									shaArr = linshi;
 								}
+					}
+					else
+					{
+						if(list.size()<shacount)//还需要筛选数据
+						{
+							linshi = new ArrayList<Integer>();
+							//备份筛选号码，如果全部移除则要重新赋值
+							for (Integer shalin : shaArr) {
+								linshi.add(shalin);
+							}
+							for (Integer integer : newarr) 
+							{
+								shaArr.remove(integer);
+							}
+							
+							if((shaArr.size()+list.size())<=shacount)//若符合条件的杀码个数和已经筛选出的杀码个数的和是要求获取杀码的数量，则直接将剩余杀码存储返回值
+							{
+								for (Integer integer : shaArr) 
+								{
+									FiveInCount fcount = new FiveInCount();
+									fcount.setNumber(integer);
+									list.add(fcount);
+								}
+							}
+							else
+							{
+								//将剩余的号码继续给数组去判断
+								for (Integer shaint : shaArr) 
+								{
+									linshi.remove(shaint);//从临时中移除已经确认为杀码的数字
+								}
+								shaArr = linshi;
+							}
+							
+							
+						}
 					}
 				}
 			}
