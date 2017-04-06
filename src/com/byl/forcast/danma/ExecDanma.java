@@ -74,7 +74,7 @@ public class ExecDanma
 			//找出新的流码
 			flowbeans = pre.getFlowData(newYuan, App.nPlan);
 			//调用方法获取胆码
-			danList = this.findDanma(dudanArr, flowbeans,2,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId());
+			danList = this.findDanma(dudanArr, flowbeans,2,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId(),danList);
 //			inserToDb(danList);
 		}
 		else
@@ -97,7 +97,7 @@ public class ExecDanma
 				//找出新的流码
 				flowbeans = pre.getFlowData(newYuan, App.nPlan);
 				//调用方法获取胆码
-				List<FiveInCount> cidanlist = this.findDanma(cidanArr, flowbeans,1,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId());//次胆有相同次数只需要找一个次胆号码即可
+				List<FiveInCount> cidanlist = this.findDanma(cidanArr, flowbeans,1,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId(),danList);//次胆有相同次数只需要找一个次胆号码即可
 				
 				danList.add(cidanlist.get(0));//向胆码list中添加次胆数据
 			}
@@ -124,42 +124,39 @@ public class ExecDanma
 			//找出新的流码
 			flowbeans = pre.getFlowData(newYuan, App.nPlan);
 			//调用方法获取胆码
-			shalist = this.findShama(shamaArr, flowbeans,3,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId());
+			shalist = this.findShama(shamaArr, flowbeans,3,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId(),shalist);
 //			inserToDb(danList);
 		}
 		else
 		{
 			shalist.add(countlist.get(countlist.size()-1));//放入杀一码数据
 			shalist.add(countlist.get(countlist.size()-2));//放入杀二码数据
-			if(countShaEqual<=2)
-			{//
-				countShaEqual = (int) this.judgeShaEqualCount(countlist,countlist.size()-2).get("countEqual");//杀三码相同号码出现次数
-				
-				if(countShaEqual != 0)
-				{
+			countShaEqual = (int) this.judgeShaEqualCount(countlist,countlist.size()-2).get("countEqual");//杀三码相同号码出现次数
+			if(countShaEqual != 0)
+			{
 //					int[] shasanArr = new int[countShaEqual];
-					List<Integer> shasanArr = new ArrayList<Integer>();
-					int size = countlist.size();
-					int s1 = 0;
-					for(int s = size-1-2;s>size-1-2-countShaEqual;s--)//开始位置是杀三码开始的位置
-					{
+				List<Integer> shasanArr = new ArrayList<Integer>();
+				int size = countlist.size();
+				int s1 = 0;
+				for(int s = size-1-2;s>size-1-2-countShaEqual;s--)//开始位置是杀三码开始的位置
+				{
 //						shasanArr[s1] = countlist.get(s).getNumber();//获取和独胆出现次数相同的号码
 //						s1++;
-						shasanArr.add(countlist.get(s).getNumber());
-					}
-					//获取源码
-					List<SrcFiveDataBean> newYuan = pre.getOriginData(yuanBeans.get(yuanBeans.size()-1).getIssueId());
-					//找出新的流码
-					flowbeans = pre.getFlowData(newYuan, App.nPlan);
-					//调用方法获取胆码
-					List<FiveInCount> shasanlist = this.findShama(shasanArr, flowbeans,1,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId());//杀三码
-					
-					shalist.add(shasanlist.get(0));//向胆码list中添加次胆数据
+					shasanArr.add(countlist.get(s).getNumber());
 				}
-				else
-				{
-					shalist.add(countlist.get(countlist.size()-1-2));//放入杀三码
-				}
+				//获取源码
+				List<SrcFiveDataBean> newYuan = pre.getOriginData(yuanBeans.get(yuanBeans.size()-1).getIssueId());
+				//找出新的流码
+				flowbeans = pre.getFlowData(newYuan, App.nPlan);
+				//调用方法获取胆码
+				List<FiveInCount> shasanlist = this.findShama(shasanArr, flowbeans,1,pre,
+						yuanBeans.get(yuanBeans.size()-1).getIssueId(),shalist);//杀三码
+				
+				shalist.add(shasanlist.get(0));//向胆码list中添加次胆数据
+			}
+			else
+			{
+				shalist.add(countlist.get(countlist.size()-1-2));//放入杀三码
 			}
 		
 		}
@@ -171,9 +168,9 @@ public class ExecDanma
 	
 	//查找胆码
 	private List<FiveInCount> findDanma(List<Integer> duArr,List<SrcFiveDataBean> flowData,int dancount,
-			PredictionRepository pre,String smallIssueId)//dancount:获取胆码个数
+			PredictionRepository pre,String smallIssueId,List<FiveInCount> list)//dancount:获取胆码个数
 	{
-		List<FiveInCount> list = new ArrayList<FiveInCount>();
+//		List<FiveInCount> list = new ArrayList<FiveInCount>();
 		
 		for (SrcFiveDataBean bean : flowData) 
 		{
@@ -258,7 +255,20 @@ public class ExecDanma
 			List<SrcFiveDataBean> newYuan = pre.getOriginData(smallIssueId);
 			//找出新的流码
 			List<SrcFiveDataBean> flowbeans = pre.getFlowData(newYuan, App.nPlan);
-			list = this.findDanma(duArr, flowbeans, dancount, pre, newYuan.get(newYuan.size()-1).getIssueId());
+			if(flowbeans.size() == 0)
+			{//如果已经找不到符合条件的流码，则默认返回现在筛选不出的数据
+				for (Integer duint : duArr) 
+				{
+					FiveInCount count = new FiveInCount();
+					count.setNumber(duint);
+					list.add(count);
+				}
+			}
+			else
+			{
+				list = this.findDanma(duArr, flowbeans, dancount, pre, newYuan.get(newYuan.size()-1).getIssueId(),list);
+			}
+			
 		}
 		
 		return list;
@@ -266,9 +276,9 @@ public class ExecDanma
 	
 	//查找杀码
 	private List<FiveInCount> findShama(List<Integer> shaArr,List<SrcFiveDataBean> flowData,int shacount,
-			PredictionRepository pre,String smallIssueId)//shacount:获取杀码个数
+			PredictionRepository pre,String smallIssueId,List<FiveInCount> list)//shacount:获取杀码个数
 	{
-		List<FiveInCount> list = new ArrayList<FiveInCount>();
+//		List<FiveInCount> list = new ArrayList<FiveInCount>();
 		
 		
 		List<Integer> linshi = null;
@@ -404,7 +414,21 @@ public class ExecDanma
 			List<SrcFiveDataBean> newYuan = pre.getOriginData(smallIssueId);
 			//找出新的流码
 			List<SrcFiveDataBean> flowbeans = pre.getFlowData(newYuan, App.nPlan);
-			this.findShama(shaArr, flowbeans, shacount,pre,newYuan.get(newYuan.size()-1).getIssueId());
+			
+			if(flowbeans.size()==0)
+			{
+				for (Integer integer : shaArr) 
+				{
+					FiveInCount fcount = new FiveInCount();
+					fcount.setNumber(integer);
+					list.add(fcount);
+				}
+			}
+			else
+			{
+				this.findShama(shaArr, flowbeans, shacount,pre,newYuan.get(newYuan.size()-1).getIssueId(),list);
+			}
+			
 		}
 		
 		

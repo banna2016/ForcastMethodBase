@@ -129,7 +129,7 @@ public class InsertInitDatatoDB {
 	* @return List<GroupNumber>    ∑µªÿ¿‡–Õ 
 	* @throws
 	 */
-	private List<GroupNumber> generateList(int number,int gnumber)
+	public List<GroupNumber> generateList(int number,int gnumber)
 	{
 		List<GroupNumber> groupNumbers = new ArrayList<GroupNumber>();
 		
@@ -154,84 +154,116 @@ public class InsertInitDatatoDB {
 				a2 = arr[i2];
 				if(a1 != a2 )
 				{
-					/*GroupNumber groupNumber = new GroupNumber();
-					StringBuffer gn = new StringBuffer(""+this.translate(a1));
-					gn.append(this.translate(a2));
-					groupNumber.setGroupNumber(gn.toString());
-					groupNumbers.add(groupNumber);
-					System.out.println(groupNumber.getGroupNumber());*/
-					
-					for(int i3=i2+1;i3<=len+2;i3++)
+					if(gnumber == 2)
 					{
-						a3 = arr[i3];
-						if(a2 !=a3)
+						GroupNumber groupNumber = new GroupNumber();
+						StringBuffer gn = new StringBuffer(""+this.translate(a1));
+						gn.append(this.translate(a2));
+						groupNumber.setGroupNumber(gn.toString());
+						groupNumbers.add(groupNumber);
+					}
+					else
+					{
+						for(int i3=i2+1;i3<=len+2;i3++)
 						{
-							/*GroupNumber groupNumber = new GroupNumber();
-							StringBuffer gn = new StringBuffer(""+this.translate(a1));
-							gn.append(this.translate(a2));
-							gn.append(this.translate(a3));
-							groupNumber.setGroupNumber(gn.toString());
-							groupNumbers.add(groupNumber);
-							System.out.println(groupNumber.getGroupNumber());*/
-							for(int i4=i3+1;i4<=len+3;i4++)
+							a3 = arr[i3];
+							if(a2 !=a3)
 							{
-								a4 = arr[i4];
-								if(a3 != a4)
+								if(gnumber == 3)
 								{
-									/*GroupNumber groupNumber = new GroupNumber();
+									GroupNumber groupNumber = new GroupNumber();
 									StringBuffer gn = new StringBuffer(""+this.translate(a1));
 									gn.append(this.translate(a2));
 									gn.append(this.translate(a3));
-									gn.append(this.translate(a4));
 									groupNumber.setGroupNumber(gn.toString());
 									groupNumbers.add(groupNumber);
-									System.out.println(groupNumber.getGroupNumber());*/
-									
-									for(int i5=i4+1;i5<=len+4;i5++)
+									System.out.println(groupNumber.getGroupNumber());
+								}
+								else
+								{
+									for(int i4=i3+1;i4<=len+3;i4++)
 									{
-										a5 = arr[i5];
-										if(a4 != a5)
+										a4 = arr[i4];
+										if(a3 != a4)
 										{
-											/*GroupNumber groupNumber = new GroupNumber();
-											StringBuffer gn = new StringBuffer(""+this.translate(a1));
-											gn.append(this.translate(a2));
-											gn.append(this.translate(a3));
-											gn.append(this.translate(a4));
-											groupNumber.setGroupNumber(gn.toString());
-											groupNumbers.add(groupNumber);
-											System.out.println(groupNumber.getGroupNumber());*/
-											
-											for(int i6=i5+1;i6<=len+5;i6++)
+											if(gnumber == 4)
 											{
-												a6 = arr[i6];
-												if(a5 != a6)
-												{
-													GroupNumber groupNumber = new GroupNumber();
-													StringBuffer gn = new StringBuffer(""+this.translate(a1));
-													gn.append(this.translate(a2));
-													gn.append(this.translate(a3));
-													gn.append(this.translate(a4));
-													gn.append(this.translate(a5));
-													gn.append(this.translate(a6));
-													groupNumber.setGroupNumber(gn.toString());
-													groupNumbers.add(groupNumber);
-													System.out.println(groupNumber.getGroupNumber());
-												}
-												
-												
+												GroupNumber groupNumber = new GroupNumber();
+												StringBuffer gn = new StringBuffer(""+this.translate(a1));
+												gn.append(this.translate(a2));
+												gn.append(this.translate(a3));
+												gn.append(this.translate(a4));
+												groupNumber.setGroupNumber(gn.toString());
+												groupNumbers.add(groupNumber);
+												System.out.println(groupNumber.getGroupNumber());
 											}
+											else
+											{
+												for(int i5=i4+1;i5<=len+4;i5++)
+												{
+													a5 = arr[i5];
+													if(a4 != a5)
+													{
+														if(gnumber == 5)
+														{
+															GroupNumber groupNumber = new GroupNumber();
+															StringBuffer gn = new StringBuffer(""+this.translate(a1));
+															gn.append(this.translate(a2));
+															gn.append(this.translate(a3));
+															gn.append(this.translate(a4));
+															gn.append(this.translate(a5));
+															groupNumber.setGroupNumber(gn.toString());
+															groupNumbers.add(groupNumber);
+															System.out.println(groupNumber.getGroupNumber());
+														}
+														else
+														{
+															for(int i6=i5+1;i6<=len+5;i6++)
+															{
+																a6 = arr[i6];
+																if(a5 != a6)
+																{
+																	if(gnumber == 6)
+																	{
+																		GroupNumber groupNumber = new GroupNumber();
+																		StringBuffer gn = new StringBuffer(""+this.translate(a1));
+																		gn.append(this.translate(a2));
+																		gn.append(this.translate(a3));
+																		gn.append(this.translate(a4));
+																		gn.append(this.translate(a5));
+																		gn.append(this.translate(a6));
+																		groupNumber.setGroupNumber(gn.toString());
+																		groupNumbers.add(groupNumber);
+																		System.out.println(groupNumber.getGroupNumber());
+																	}
+																	
+																}
+																
+																
+															}
+														}
+														
+														
+													}
+													
+													
+												}
+											}
+											
+											
 										}
 										
 										
 									}
 								}
 								
-								
 							}
+							
+							
 						}
-						
-						
 					}
+					
+					
 				}
 				
 				

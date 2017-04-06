@@ -4,6 +4,9 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -71,6 +74,8 @@ public class App
 	
 	public static int orderRule;//准确率计算数据基数
 	
+	public static Map<String,Integer> countMap = new HashMap<String,Integer>();
+	
 	
 	private static void initParam()
 	  {
@@ -96,6 +101,16 @@ public class App
 	    baseptypetbName = p.getProperty("baseptypetbName");
 	    originruleTbName = p.getProperty("originRuletbName");
 	    number = Integer.parseInt(p.getProperty("number"));
+	    
+	    //初始化map内容
+	    InsertInitDatatoDB datatoDB = new InsertInitDatatoDB();
+	    List<GroupNumber> allList = datatoDB.generateList(11,6);//传入号码个数和当前要生成的组合中号码的个数
+	    for (GroupNumber groupNumber : allList)
+	    {
+	    	countMap.put(groupNumber.getGroupNumber(), 0);
+		}
+	    
+	    
 	  }
 	
 	
@@ -154,7 +169,7 @@ public class App
 		}
 		if(maxflag&&null != App.methodName && !"".equals(App.methodName ))
 		{
-//			App.maxIssueId="17040607";
+//			App.maxIssueId="17040622";
 			maxflag = false;
 			//通过反射进入预测方法
 			PredictionRepository predictionRepository = new PredictionRepository();

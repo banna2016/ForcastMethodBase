@@ -73,7 +73,7 @@ public class ExecRenDanma
 			//找出新的流码
 			flowbeans = pre.getFlowData(newYuan, App.nPlan);
 			//调用方法获取胆码
-			danList = this.findDanma(dudanArr, flowbeans,1,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId());
+			danList = this.findDanma(dudanArr, flowbeans,1,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId(),danList);
 //			inserToDb(danList);
 		}
 		else
@@ -97,7 +97,7 @@ public class ExecRenDanma
 			//找出新的流码
 			flowbeans = pre.getFlowData(newYuan, App.nPlan);
 			//调用方法获取胆码
-			shalist = this.findShama(shamaArr, flowbeans,1,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId());
+			shalist = this.findShama(shamaArr, flowbeans,1,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId(),shalist);
 		}
 		else
 		{
@@ -112,9 +112,9 @@ public class ExecRenDanma
 	
 	//查找胆码
 	private List<FiveInCount> findDanma(List<Integer> duArr,List<SrcFiveDataBean> flowData,int dancount,
-			PredictionRepository pre,String smallIssueId)//dancount:获取胆码个数
+			PredictionRepository pre,String smallIssueId,List<FiveInCount> list)//dancount:获取胆码个数
 	{
-		List<FiveInCount> list = new ArrayList<FiveInCount>();
+//		List<FiveInCount> list = new ArrayList<FiveInCount>();
 		
 		for (SrcFiveDataBean bean : flowData) 
 		{
@@ -200,7 +200,21 @@ public class ExecRenDanma
 			List<SrcFiveDataBean> newYuan = pre.getOriginData(smallIssueId);
 			//找出新的流码
 			List<SrcFiveDataBean> flowbeans = pre.getFlowData(newYuan, App.nPlan);
-			list = this.findDanma(duArr, flowbeans, dancount, pre, newYuan.get(newYuan.size()-1).getIssueId());
+			
+			if(flowbeans.size()>0)
+			{
+				list = this.findDanma(duArr, flowbeans, dancount, pre, newYuan.get(newYuan.size()-1).getIssueId(),list);
+			}
+			else
+			{
+				for (Integer duint : duArr) 
+				{
+					FiveInCount count = new FiveInCount();
+					count.setNumber(duint);
+					list.add(count);
+				}
+			}
+			
 		}
 		
 		return list;
@@ -208,9 +222,9 @@ public class ExecRenDanma
 	
 	//查找杀码
 	private List<FiveInCount> findShama(List<Integer> shaArr,List<SrcFiveDataBean> flowData,int shacount,
-			PredictionRepository pre,String smallIssueId)//shacount:获取杀码个数
+			PredictionRepository pre,String smallIssueId,List<FiveInCount> list)//shacount:获取杀码个数
 	{
-		List<FiveInCount> list = new ArrayList<FiveInCount>();
+//		List<FiveInCount> list = new ArrayList<FiveInCount>();
 		
 		
 		List<Integer> linshi = null;
@@ -347,7 +361,19 @@ public class ExecRenDanma
 			List<SrcFiveDataBean> newYuan = pre.getOriginData(smallIssueId);
 			//找出新的流码
 			List<SrcFiveDataBean> flowbeans = pre.getFlowData(newYuan, App.nPlan);
-			this.findShama(shaArr, flowbeans, shacount,pre,newYuan.get(newYuan.size()-1).getIssueId());
+			if(flowbeans.size()>0)
+			{
+				this.findShama(shaArr, flowbeans, shacount,pre,newYuan.get(newYuan.size()-1).getIssueId(),list);
+			}
+			else
+			{
+				for (Integer integer : shaArr) 
+				{
+					FiveInCount fcount = new FiveInCount();
+					fcount.setNumber(integer);
+					list.add(fcount);
+				}
+			}
 		}
 		return list;
 	}

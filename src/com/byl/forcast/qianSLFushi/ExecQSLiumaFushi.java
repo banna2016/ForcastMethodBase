@@ -7,16 +7,21 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.byl.forcast.App;
 import com.byl.forcast.ConnectLTDb;
 import com.byl.forcast.DataToDb;
 import com.byl.forcast.FiveInCount;
 import com.byl.forcast.GroupNumber;
+import com.byl.forcast.Maputil;
 import com.byl.forcast.PredictionRepository;
 import com.byl.forcast.SrcFiveDataBean;
 import com.byl.forcast.danma.DanmaYuce;
@@ -41,7 +46,7 @@ public class ExecQSLiumaFushi
 		List<GroupNumber> list = this.changeFushiFromFlowData(flowbeans, 6,3);//6:前三6码复式
 		
 		//先将统计表清空
-		clearTongji(App.liumatbName);
+		clearTongji();
 		
 		//将流码生成的前三六码复式更新到次数统计表中
 		this.updateTimes(list, App.liumatbName);
@@ -55,8 +60,9 @@ public class ExecQSLiumaFushi
 		if(countEqual != 0)
 		{
 			List<GroupNumber> equallist = new ArrayList<GroupNumber>();
-			for (int i=0;i<countEqual;i++)
+			for (int i=0;i<=countEqual;i++)
 			{
+				maxgroup.get(i).setCount(0);
 				equallist.add(maxgroup.get(i));
 			}
 			
@@ -78,9 +84,13 @@ public class ExecQSLiumaFushi
 		
 	}
 	//将统计表的count清0
-	private void clearTongji(String tbName)
+	private void clearTongji()
 	{
-		PreparedStatement pstmt = null;
+		for (String key : App.countMap.keySet()) {
+			App.countMap.put(key, 0);
+		}
+			
+		/*PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		Connection conn = ConnectLTDb.getConnection();
 		StringBuffer sql = new StringBuffer();
@@ -99,7 +109,7 @@ public class ExecQSLiumaFushi
 		finally
 		{
 			ConnectLTDb.dbClose(conn, pstmt, rs);
-		}
+		}*/
 	}
 	
 	/**
@@ -127,31 +137,70 @@ public class ExecQSLiumaFushi
 		
 		for (GroupNumber groupNumber : equallist) 
 		{
-			groupNumber.setCount(0);
-			if(list.contains(groupNumber))
+//			groupNumber.setCount(0);
+			if(this.listContainValue(list, groupNumber))
 			{//若包含，则更新其次数
-				updateTimesOfGnumber(groupNumber,countTbName);
+//				updateTimesOfGnumber(groupNumber,countTbName);
+				if(App.countMap.containsKey(groupNumber.getGroupNumber()))
+				{
+					int count =   Integer.parseInt(App.countMap.get(groupNumber.getGroupNumber()).toString())+ 1;
+//					App.countMap.remove(groupNumber.getGroupNumber());
+					App.countMap.put(groupNumber.getGroupNumber(), count);
+					App.countMap = Maputil.sortByValue(App.countMap);//更新出现次数后重新排序
+				}
 			}
 		}
 		
 		//判断当前组合是否次数不同，若还相同则要继续判断
-		List<GroupNumber> newEquallist = this.getEqualListcount(equallist, App.liumatbName);
-		int countEqual = (int) this.judgeEqualCount(newEquallist,0).get("countEqual");//相同号码出现次数
+//		List<GroupNumber> newEquallist = this.getEqualListcount(equallist, App.liumatbName);
+		List<GroupNumber> maxgroup = this.findMaxTimesGroup(App.liumatbName,10);//10:取10条数据，是limit的参数
+		//查看次数最多的组合中是否有出现次数相同的组合
+		int countEqual = (int) this.judgeEqualCount(maxgroup,0).get("countEqual");//相同号码出现次数
+		
 		if(countEqual!=0)
 		{//还有相同的
 			equallist.removeAll(equallist);
-			for (int i=0;i<countEqual;i++)
+			for (int i=0;i<=countEqual;i++)
 			{
-				equallist.add(newEquallist.get(i));
+				maxgroup.get(i).setCount(0);
+				equallist.add(maxgroup.get(i));
+			}
+			if(flowbeans.size()>0)
+			{
+				gmax = this.findMaxCountGroupnumber(pre,equallist, newYuan.get(newYuan.size()-1).getIssueId(),App.liumatbName);
+			}
+			else
+			{//没有流码数据了，则默认取第一条为预测数据
+				gmax = equallist.get(0);
 			}
 			
 			
-			gmax = this.findMaxCountGroupnumber(pre,equallist, newYuan.get(newYuan.size()-1).getIssueId(),App.liumatbName);
-			
+		}
+		else
+		{//没有流码数据了，则默认取第一条为预测数据
+			gmax = maxgroup.get(0);
 		}
 		
 		return gmax;
 	}
+	//判断list中是否包含gnumber
+	private boolean listContainValue(List<GroupNumber> list,GroupNumber gnumber)
+	{
+		boolean flag =  false;
+		
+		for (GroupNumber groupNumber : list) 
+		{
+			if(groupNumber.getGroupNumber().equals(gnumber.getGroupNumber()))
+			{
+				flag = true;
+				break;
+			}
+				
+		}
+		
+		return flag;
+	}
+	
 	//获取出现次数相同的组合的新排序
 	public List<GroupNumber> getEqualListcount(List<GroupNumber> equallist,String countTbName)
 	{
@@ -317,8 +366,28 @@ public class ExecQSLiumaFushi
 	public List<GroupNumber> findMaxTimesGroup(String tbName,int n)
 	{
 		List<GroupNumber> list = new ArrayList<GroupNumber>();
+		Set keyset = App.countMap.keySet();
+		Iterator<String> it = keyset.iterator();
+		int c = 0;
+		while(it.hasNext())
+		{
+			if(c < n)
+			{
+				GroupNumber groupNumber = new GroupNumber();
+				groupNumber.setGroupNumber(it.next());
+//				System.out.println(App.countMap.get(groupNumber.getGroupNumber())+"=="+groupNumber.getGroupNumber());
+				groupNumber.setCount(App.countMap.get(groupNumber.getGroupNumber()));
+				list.add(groupNumber);
+				c++;
+			}
+			else
+			{
+				break;
+			}
+			
+		}
 		
-		Connection con = ConnectLTDb.getConnection();
+		/*Connection con = ConnectLTDb.getConnection();
 		PreparedStatement pstmt = null;
 		StringBuffer sql = new StringBuffer("SELECT groupnumber,COUNT FROM "+tbName+" ORDER BY COUNT DESC LIMIT "+n);
 		 ResultSet rs = null;
@@ -341,7 +410,7 @@ public class ExecQSLiumaFushi
 		finally
 		{
 			ConnectLTDb.dbClose(con, pstmt, rs);
-		}
+		}*/
 	     
 		
 		
@@ -374,7 +443,21 @@ public class ExecQSLiumaFushi
 	
 	public void updateTimes(List<GroupNumber> list,String tbName)
 	{
-		PreparedStatement pstmt = null;
+		//将每个组合的出现次数统计在countMap中
+		for (GroupNumber groupNumber : list) 
+		{
+			if(App.countMap.containsKey(groupNumber.getGroupNumber()))
+			{
+				int count =   Integer.parseInt(App.countMap.get(groupNumber.getGroupNumber()).toString())+ 1;
+//				App.countMap.remove(groupNumber.getGroupNumber());
+				App.countMap.put(groupNumber.getGroupNumber(), count);
+			}
+		}
+		//将map排序
+		App.countMap=Maputil.sortByValue(App.countMap);
+		
+		
+		/*PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		Connection conn = ConnectLTDb.getConnection();
 		StringBuffer sql = new StringBuffer();
@@ -408,7 +491,7 @@ public class ExecQSLiumaFushi
 		{
 			ConnectLTDb.dbClose(conn, pstmt, rs);
 		}
-		
+		*/
 		
 		
 		
@@ -477,6 +560,7 @@ public class ExecQSLiumaFushi
 		for (GroupNumber gNumber : list) 
 		{
 			gNumber.setGroupNumber(this.sortString(strqiansan.toString()+gNumber.getGroupNumber()));
+			gNumber.setCount(0);
 		}
 		
 		
@@ -761,7 +845,8 @@ public class ExecQSLiumaFushi
 			pstmt = (PreparedStatement)conn.prepareStatement(sql.toString());
 			
 			sql.append("update "+App.predictionTbName+" set "
-					+ " STATUS="+fushiStatus+" "
+					+ " STATUS="+fushiStatus+", "
+					+ " DROWN_NUMBER='"+drownNumber+"' "
 					+ " where"
 					+ " ISSUE_NUMBER="+App.maxIssueId+" and "
 					+ " EXPERT_ID='"+App.beid+"' and "
