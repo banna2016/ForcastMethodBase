@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.byl.forcast.danma.DanmaYuce;
+import com.byl.forcast.qianSLFushi.FushiYuce;
 
 public class DataToDb 
 {
@@ -194,7 +195,8 @@ public class DataToDb
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
 	    String sql = "SELECT PREDICTION_TYPE,EXPERT_ID,ISSUE_NUMBER,DANMA_ONE,"
-	    		+ "SHAMA_ONE FROM " + tbName + " where issue_number = '" + issueNumber + "'";
+	    		+ "SHAMA_ONE FROM " + tbName + " where issue_number = '" + issueNumber + "'   and "
+				+ " PREDICTION_TYPE='"+App.ptypeid+"' and EXPERT_ID='"+App.beid+"' ";
 	    try
 	    {
 	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);
@@ -219,6 +221,37 @@ public class DataToDb
 	    	ConnectLTDb.dbClose(srcConn, pstmt, rs);
 	    }
 	    return danmaYuce;
+	  }
+	
+	public FushiYuce getQiansanLiuFushiYuceRecordByIssueNumber(String issueNumber, String tbName)
+	  {
+	    Connection srcConn = ConnectLTDb.getConnection();
+	    FushiYuce fushiYuce = new FushiYuce();
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+	    String sql = "SELECT FUSHI"
+	    		+ " FROM " + tbName + " where issue_number = '" + issueNumber + "'   and "
+				+ " PREDICTION_TYPE='"+App.ptypeid+"' and EXPERT_ID='"+App.beid+"' ";
+	    try
+	    {
+	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);
+	      rs = pstmt.executeQuery();
+	      while (rs.next()) 
+	      {
+	         if(rs.isFirst())
+	         {
+	        	 fushiYuce.setFUSHI(rs.getString(1));
+	         }
+	      }
+	    }
+	    catch (Exception e)
+	    {
+	      e.printStackTrace();
+	    }
+	    finally{
+	    	ConnectLTDb.dbClose(srcConn, pstmt, rs);
+	    }
+	    return fushiYuce;
 	  }
 	
 	/**
