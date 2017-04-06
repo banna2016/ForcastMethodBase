@@ -77,10 +77,11 @@ public class ExecQSLiumaFushi
 	
 		
 		//将预测结果插入到数据库中
+		String nextIssue = App.getNextIssueByCurrentIssue(App.maxIssueId);
+		String stopIssue = this.getNextNIssuenumber(nextIssue, Integer.parseInt(App.nPlan));
+		gMaxGroup.setStartIssue(nextIssue);
+		gMaxGroup.setStopIssue(stopIssue);
 		insertToDB(gMaxGroup);
-		
-		
-		
 		
 	}
 	//将统计表的count清0
@@ -294,11 +295,11 @@ public class ExecQSLiumaFushi
 	{
 		//期号是代码中最大期号的下一期
 		String nextIssue = App.getNextIssueByCurrentIssue(App.maxIssueId);
-		 PreparedStatement pstmt = null;
+		PreparedStatement pstmt = null;
 		Connection conn = ConnectLTDb.getConnection();
 	    String sql = "insert into " + App.predictionTbName + " "
-	    		+ "(issue_number,FUSHI,CREATE_TIME,PREDICTION_TYPE,EXPERT_ID) "
-	    		+ "values(?,?,?,?,?)";
+	    		+ "(issue_number,FUSHI,CREATE_TIME,PREDICTION_TYPE,EXPERT_ID,CYCLE,YUCE_ISSUE_START,YUCE_ISSUE_STOP) "
+	    		+ "values(?,?,?,?,?,?,?,?)";
 	    try
 	    {
 	    	pstmt = (PreparedStatement)conn.prepareStatement(sql);
@@ -307,9 +308,12 @@ public class ExecQSLiumaFushi
 	 	    pstmt.setTimestamp(3, new Timestamp(new Date().getTime()));
 	 	    pstmt.setString(4, App.ptypeid);
 	 	    pstmt.setString(5, App.beid);
+	 	    pstmt.setString(6, App.nPlan);
+	 	    pstmt.setString(7, gMaxGroup.getStartIssue());
+	 	    pstmt.setString(8, gMaxGroup.getStopIssue());
 	 	    pstmt.executeUpdate();
 	    }
-	   catch(Exception e)
+	    catch(Exception e)
 	    {
 		   e.printStackTrace();
 	    }
@@ -777,25 +781,21 @@ public class ExecQSLiumaFushi
 		return list;
 	}
 	
-	/**
-	 * 将开奖号码小到大排序，转化为AJQ
-	* @Title: changeSmallToBig 
-	* @Description: TODO(这里用一句话描述这个方法的作用) 
-	* @param @param bean
-	* @param @return    设定文件 
-	* @author banna
-	* @date 2017年4月5日 上午10:58:05 
-	* @return String    返回类型 
-	* @throws
-	 */
-    public String changeSmallToBig(SrcFiveDataBean bean)
-    {
-    	String str = "";
-    	
-    	
-    	
-    	return str;
-    }
+	//获取n期后的期号
+	public String getNextNIssuenumber(String issueNum,int nplan)
+	{
+		String nextNIssuenumber = issueNum;
+		nplan = nplan-1;
+		for(int i=0;i<nplan;i++)
+		{
+			if(i<nplan)
+			{
+				nextNIssuenumber = App.getNextIssueByCurrentIssue(nextNIssuenumber);
+			}
+		}
+		System.out.println("nextNIssuenumber="+nextNIssuenumber);
+		return  nextNIssuenumber;
+	}
 	
 	//更新当前预测的准确率
 	public void updateStatus()
@@ -828,10 +828,13 @@ public class ExecQSLiumaFushi
 				}
 			}
 		}
+		//返回标记是否执行预测
+		boolean yuceNextFlag = false;
 		
 		if(fushiYes == 3)
 		{//若前三开奖号码都存在于预测结果中，则结果应该是3
 			fushiStatus="1";
+			yuceNextFlag = true;//若当前预测中出，则要进行下一周期的预测
 		}
 		
 		//更新准确率到数据库
@@ -846,11 +849,10 @@ public class ExecQSLiumaFushi
 			
 			sql.append("update "+App.predictionTbName+" set "
 					+ " STATUS="+fushiStatus+", "
-					+ " DROWN_NUMBER='"+drownNumber+"' "
+					+ " DROWN_NUMBER='"+drownNumber+"', "
+					+ " ISSUE_NUMBER='"+App.maxIssueId+"' "//中奖期号||计划最后一期期号
 					+ " where"
-					+ " ISSUE_NUMBER="+App.maxIssueId+" and "
-					+ " EXPERT_ID='"+App.beid+"' and "
-					+ " PREDICTION_TYPE='"+App.ptypeid+"' ");
+					+ " ID='"+fushiYuce.getID()+"'");
 			
 			pstmt.executeUpdate(sql.toString());
 			
@@ -866,13 +868,26 @@ public class ExecQSLiumaFushi
 			sqlzjl.append("update "+App.predictionTbName+" set "
 					+ " WIN_RATE="+dudanZJL+" "
 					+ " where"
-					+ " ISSUE_NUMBER="+App.maxIssueId+" and "
-					+ " EXPERT_ID='"+App.beid+"' and "
-					+ " PREDICTION_TYPE='"+App.ptypeid+"' ");
+					+ " ID='"+fushiYuce.getID()+"'");
 			
 			pstmt.executeUpdate(sqlzjl.toString());
 			
-			//TODO:待完成：根据中奖率判断当前专家是否收费
+			
+			//TODO:待完成1：根据中奖率判断当前专家是否收费
+			
+			//判断是否预测下一期(若当期中出，或者当期的期号是预测计划的最后一期，则要继续预测)
+			if(yuceNextFlag || App.maxIssueId.equals(fushiYuce.getYUCE_ISSUE_STOP()))
+			{
+				//判断完这期中奖率再预测下一期
+				PredictionRepository pre = new PredictionRepository();
+				List<SrcFiveDataBean> yuanBeans = pre.getOriginData(null);
+				this.execQSLiumaFushi(yuanBeans);
+			}
+			else
+			{//若没中出，且计划未到期，则继续
+				/*GroupNumber nextgnumber = new GroupNumber();
+				this.insertToDB(nextgnumber);*/
+			}
 			
 		} 
 		catch (SQLException e) 
@@ -883,6 +898,5 @@ public class ExecQSLiumaFushi
 		{
 			ConnectLTDb.dbClose(conn, pstmt, rs);
 		}
-		
 	}
 }

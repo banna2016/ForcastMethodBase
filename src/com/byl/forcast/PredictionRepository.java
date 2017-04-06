@@ -98,13 +98,11 @@ public class PredictionRepository
 		ExecQSLiumaFushi execQSLiumaFushi = new ExecQSLiumaFushi();
 		DataToDb dataToDb = new DataToDb();
 		//判断当期期号是否已经预测，预测则要判断中奖率
-		if(dataToDb.hasRecordByIssueNumber(App.maxIssueId,App.predictionTbName))
+		if(dataToDb.hasFushiRecordByIssueNumber(App.maxIssueId,App.predictionTbName))
 		{//判断中奖率
 			execQSLiumaFushi.updateStatus();
 			System.out.println("判断前三六码复式中奖率");
-			//判断完这期中奖率再预测下一期
-			List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);
-			execQSLiumaFushi.execQSLiumaFushi(yuanBeans);
+			
 		}
 		else
 		{

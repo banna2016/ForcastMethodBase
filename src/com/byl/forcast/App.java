@@ -120,7 +120,8 @@ public class App
 		try
 		{
 			initParam();
-			exctPredict();
+//			exctPredict();
+			InitParams.getMethodName();//初始化预测方法名
 		}
 		catch(Exception e)
 		{
@@ -156,7 +157,6 @@ public class App
 	 */
 	public static void  exctPredict()
 	{
-		InitParams.getMethodName();//初始化预测方法名
 		
 		DataToDb dataToDb = new DataToDb();
 		String maxIssueNumber = dataToDb.findMaxIssueIdFromSrcDb();

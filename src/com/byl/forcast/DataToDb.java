@@ -127,6 +127,40 @@ public class DataToDb
 	    return flag;
 	  }
 	
+	public boolean hasFushiRecordByIssueNumber(String issueNumber, String tbName)
+	  {
+	    Connection srcConn = ConnectLTDb.getConnection();
+	    boolean flag = false;
+	    int count = 0;
+	    ResultSet rs = null;
+	    PreparedStatement pstmt = null;
+	    String sql = "SELECT FUSHI,YUCE_ISSUE_START,YUCE_ISSUE_STOP,CYCLE,ID "
+	    		+ " FROM " + tbName + " where " + issueNumber + ">=YUCE_ISSUE_START and  " + issueNumber + "<=YUCE_ISSUE_STOP"
+	    		+ "  and  PREDICTION_TYPE='"+App.ptypeid+"' and EXPERT_ID='"+App.beid+"' order by YUCE_ISSUE_START desc limit 1";
+	    try
+	    {
+	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);
+	      rs = pstmt.executeQuery();
+	      while (rs.next()) 
+	      {
+	        count = rs.getInt(1);
+	      }
+	      if (count > 0) 
+	      {
+	        flag = true;
+	      }
+	    }
+	    catch (Exception e)
+	    {
+	      e.printStackTrace();
+	    }
+	    finally
+	    {
+	    	ConnectLTDb.dbClose(srcConn, pstmt, rs);
+	    }
+	    return flag;
+	  }
+	
 	/**
 	 * 获取当前期号对应的预测结果
 	* @Title: getYuceRecordByIssueNumber 
@@ -229,18 +263,22 @@ public class DataToDb
 	    FushiYuce fushiYuce = new FushiYuce();
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
-	    String sql = "SELECT FUSHI"
-	    		+ " FROM " + tbName + " where issue_number = '" + issueNumber + "'   and "
-				+ " PREDICTION_TYPE='"+App.ptypeid+"' and EXPERT_ID='"+App.beid+"' ";
+	    String sql = "SELECT FUSHI,YUCE_ISSUE_START,YUCE_ISSUE_STOP,CYCLE,ID "
+	    		+ " FROM " + tbName + " where " + issueNumber + ">=YUCE_ISSUE_START and  " + issueNumber + "<=YUCE_ISSUE_STOP"
+	    		+ "  and  PREDICTION_TYPE='"+App.ptypeid+"' and EXPERT_ID='"+App.beid+"' order by YUCE_ISSUE_START desc limit 1 ";
 	    try
 	    {
 	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);
-	      rs = pstmt.executeQuery();
+	      rs = pstmt.executeQuery(); 
 	      while (rs.next()) 
 	      {
 	         if(rs.isFirst())
 	         {
 	        	 fushiYuce.setFUSHI(rs.getString(1));
+	        	 fushiYuce.setYUCE_ISSUE_START(rs.getString(2));
+	        	 fushiYuce.setYUCE_ISSUE_STOP(rs.getString(3));
+	        	 fushiYuce.setCYCLE(rs.getString(4));
+	        	 fushiYuce.setID(rs.getInt(5));
 	         }
 	      }
 	    }
