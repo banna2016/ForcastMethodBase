@@ -104,7 +104,7 @@ public class App
 	    
 	    /**初始化map内容（需要配置）**/
 	    InsertInitDatatoDB datatoDB = new InsertInitDatatoDB();
-	    List<GroupNumber> allList = datatoDB.generateList(App.number,3);//传入号码个数和当前要生成的组合中号码的个数
+	    List<GroupNumber> allList = datatoDB.generateList(App.number,2);//传入号码个数和当前要生成的组合中号码的个数
 	    for (GroupNumber groupNumber : allList)
 	    {
 	    	countMap.put(groupNumber.getGroupNumber(), 0);
@@ -177,7 +177,7 @@ public class App
 		}
 		if(maxflag&&null != App.methodName && !"".equals(App.methodName ))
 		{
-//			App.maxIssueId="17040746";
+//			App.maxIssueId="17040747";
 			maxflag = false;
 			//通过反射进入预测方法
 			PredictionRepository predictionRepository = new PredictionRepository();

@@ -42,7 +42,7 @@ public class ExecTwoCodeThreePlan
 		
 		ExecRensanTopSixgroup execRensanTopSixgroup = new ExecRensanTopSixgroup();
 		ExecQSLiumaFushi execQSLiumaFushi = new ExecQSLiumaFushi();
-		List<GroupNumber> list = execRensanTopSixgroup.fushiFromBeans(flowbeans,2);//获取四码复式
+		List<GroupNumber> list = execRensanTopSixgroup.fushiFromBeans(flowbeans,2);//获取两码复式
 		
 		//先将统计表清空
 		clearTongji();
@@ -114,8 +114,8 @@ public class ExecTwoCodeThreePlan
 		List<SrcFiveDataBean> newYuan = pre.getOriginData(smallYuanIssueId);
 		//找出新的流码
 		List<SrcFiveDataBean> flowbeans = pre.getFlowData(newYuan, App.nPlan);
-		//找出流码对应的四码复式
-		List<GroupNumber> list = execRensanTopSixgroup.fushiFromBeans(flowbeans, 4);
+		//找出流码对应的两码复式
+		List<GroupNumber> list = execRensanTopSixgroup.fushiFromBeans(flowbeans, 2);
 		
 		for (GroupNumber groupNumber : equallist) 
 		{
@@ -214,6 +214,7 @@ public class ExecTwoCodeThreePlan
 	 	    pstmt.setString(7, gMaxGroup.getStartIssue());
 	 	    pstmt.setString(8, gMaxGroup.getStopIssue());
 	 	    pstmt.executeUpdate();
+	 	    System.out.println(gMaxGroup.getGroupNumber());
 	    }
 	    catch(Exception e)
 	    {
