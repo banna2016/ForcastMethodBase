@@ -48,7 +48,7 @@ public class ExecQSLiumaFushi
 		this.updateTimes(list, App.liumatbName);
 		
 		//找出出现次数最多的一组
-		List<GroupNumber> maxgroup = this.findMaxTimesGroup(App.liumatbName,10);//10:取10条数据，是limit的参数
+		List<GroupNumber> maxgroup = this.findMaxTimesGroup(10);//10:取10条数据，是limit的参数
 		
 		//查看次数最多的组合中是否有出现次数相同的组合
 		int countEqual = (int) this.judgeEqualCount(maxgroup,0).get("countEqual");//相同号码出现次数
@@ -150,7 +150,7 @@ public class ExecQSLiumaFushi
 		
 		//判断当前组合是否次数不同，若还相同则要继续判断
 //		List<GroupNumber> newEquallist = this.getEqualListcount(equallist, App.liumatbName);
-		List<GroupNumber> maxgroup = this.findMaxTimesGroup(App.liumatbName,10);//10:取10条数据，是limit的参数
+		List<GroupNumber> maxgroup = this.findMaxTimesGroup(10);//10:取10条数据，是limit的参数
 		//查看次数最多的组合中是否有出现次数相同的组合
 		int countEqual = (int) this.judgeEqualCount(maxgroup,0).get("countEqual");//相同号码出现次数
 		
@@ -363,7 +363,7 @@ public class ExecQSLiumaFushi
 	* @return List<GroupNumber>    返回类型 
 	* @throws
 	 */
-	public List<GroupNumber> findMaxTimesGroup(String tbName,int n)
+	public List<GroupNumber> findMaxTimesGroup(int n)
 	{
 		List<GroupNumber> list = new ArrayList<GroupNumber>();
 		Set keyset = App.countMap.keySet();
@@ -386,33 +386,6 @@ public class ExecQSLiumaFushi
 			}
 			
 		}
-		
-		/*Connection con = ConnectLTDb.getConnection();
-		PreparedStatement pstmt = null;
-		StringBuffer sql = new StringBuffer("SELECT groupnumber,COUNT FROM "+tbName+" ORDER BY COUNT DESC LIMIT "+n);
-		 ResultSet rs = null;
-		try 
-		{
-			 pstmt = (PreparedStatement)con.prepareStatement(sql.toString());
-			rs = pstmt.executeQuery();
-			 while (rs.next())
-		      {
-				 GroupNumber groupNumber = new GroupNumber();
-				 groupNumber.setGroupNumber(rs.getString(1));
-				 groupNumber.setCount(rs.getInt(2));
-				 list.add(groupNumber);
-		      }
-		} 
-		catch (SQLException e) 
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			ConnectLTDb.dbClose(con, pstmt, rs);
-		}*/
-	     
-		
 		
 		return list;
 	}
