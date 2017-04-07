@@ -417,17 +417,33 @@ public class ExecRensanTopSixgroup
 		{
 			drownNumber.append(string);
 		}
-		String sortKjnumber = this.sortString(drownNumber.toString());//将开奖号码排序
 		//获取预测内容
 		RenSanGroup renSanGroup = dataToDb.getRensanSixGroupYuceRecordByIssueNumber(curIssue.getIssueId(), App.predictionTbName);
-		int status = 0;
-		
+	
+		int status = 0;//当前中出的组数
+		int checkint = 0;
 		for(int i=1;i<=6;i++)
 		{
-			if(sortKjnumber.contains(renSanGroup.map.get("group"+i)))
-			{
-				status++;
-			}
+			//取出号码
+				char[] rr = renSanGroup.map.get("group"+i).toCharArray();
+				for(char yuce:rr)
+				{
+					for (String kjNum : numList) 
+					{
+						if(kjNum.equals(yuce+""))
+						{
+							checkint++;//一个号码相等
+							break;
+						}
+					}
+					
+				}
+				
+				if(checkint == 3)
+				{//预测号码中三个号码全在开奖号码中
+					status++;
+				}
+				checkint = 0;//重置统计为0
 		}
 		
 		//更新准确率到数据库
