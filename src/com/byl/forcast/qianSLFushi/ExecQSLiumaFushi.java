@@ -457,41 +457,7 @@ public class ExecQSLiumaFushi
 		App.countMap=Maputil.sortByValue(App.countMap);
 		
 		
-		/*PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		Connection conn = ConnectLTDb.getConnection();
-		StringBuffer sql = new StringBuffer();
 		
-		try 
-		{
-			pstmt = conn.prepareStatement("update "+tbName+" set count=count+1 where groupNumber=? ",
-					ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
-			conn.setAutoCommit(false);
-			for (GroupNumber groupNumber : list) 
-			{
-				pstmt.setString(1, groupNumber.getGroupNumber());
-				pstmt.addBatch();   
-			}
-			int[] t =pstmt.executeBatch(); 
-			System.out.println(t.length);
-			 conn.commit();
-			 conn.setAutoCommit(true);//3,提交完成后回复现场将Auto commit,还原为true,   
-		} 
-		catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			 try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}  
-		}
-		finally
-		{
-			ConnectLTDb.dbClose(conn, pstmt, rs);
-		}
-		*/
 		
 		
 		

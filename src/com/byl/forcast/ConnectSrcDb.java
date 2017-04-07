@@ -46,6 +46,8 @@ public class ConnectSrcDb
       pr.put("password", password);
       pr.put("characterEncoding", "GB2312");
       pr.put("useUnicode", "TRUE");
+      pr.put("autoReconnect", "TRUE");
+      pr.put("failOverReadOnly", "false");
       Class.forName(driver).newInstance();
       return DriverManager.getConnection(url, pr);
     }

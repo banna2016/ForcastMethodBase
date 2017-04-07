@@ -162,7 +162,20 @@ public class PredictionRepository
 	public void LeFourOfRensi()
 	{
 		ExecHappyFourPlan execHappyFourPlan = new ExecHappyFourPlan();
-		
+		DataToDb dataToDb = new DataToDb();
+		//判断当期期号是否已经预测，预测则要判断中奖率
+		if(dataToDb.hasFushiRecordByIssueNumber(App.maxIssueId,App.predictionTbName))
+		{//判断中奖率
+			execHappyFourPlan.updateStatus();
+			System.out.println("判断乐选四期计划中奖率");
+			
+		}
+		else
+		{
+			List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);
+			execHappyFourPlan.execLexuanFourPlan(yuanBeans);
+			System.out.println("开始乐选四期计划复式");
+		}
 		
 	}
 	

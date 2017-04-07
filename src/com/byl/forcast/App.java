@@ -104,7 +104,7 @@ public class App
 	    
 	    //初始化map内容
 	    InsertInitDatatoDB datatoDB = new InsertInitDatatoDB();
-	    List<GroupNumber> allList = datatoDB.generateList(App.number,3);//传入号码个数和当前要生成的组合中号码的个数
+	    List<GroupNumber> allList = datatoDB.generateList(App.number,4);//传入号码个数和当前要生成的组合中号码的个数
 	    for (GroupNumber groupNumber : allList)
 	    {
 	    	countMap.put(groupNumber.getGroupNumber(), 0);
