@@ -5,3 +5,12 @@ liangmaThree:两码三期计划
 qianSLFushi:前三六码复式
 renDanAndShama:任选胆码与杀码
 renSLGroup:任三精选6组
+
+注释：一个省份要建立6张预测表，分别对象预测池中的6个预测方法（其他省份除T_LN_5IN11_中的省份拼音不同外，其他全部相同）
+表名结果为：
+T_LN_5IN11_LEXUAN_FOUR_PLAN：乐选四期计划
+T_LN_5IN11_LIANGMA_TWO_PLAN：两码三期计划
+T_LN_5IN11_QIANSAN_DANSHAMA：前三胆杀
+T_LN_5IN11_QIANSAN_LIUMA_FUSHI：前三六码复式5期计划
+T_LN_5IN11_REN_DANSHAMA：任选胆杀
+T_LN_5IN11_RENSAN_LIUGROUP：任三精选6组
