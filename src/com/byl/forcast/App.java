@@ -102,9 +102,9 @@ public class App
 	    originruleTbName = p.getProperty("originRuletbName");
 	    number = Integer.parseInt(p.getProperty("number"));
 	    
-	    //初始化map内容
+	    /**初始化map内容（需要配置）**/
 	    InsertInitDatatoDB datatoDB = new InsertInitDatatoDB();
-	    List<GroupNumber> allList = datatoDB.generateList(App.number,2);//传入号码个数和当前要生成的组合中号码的个数
+	    List<GroupNumber> allList = datatoDB.generateList(App.number,3);//传入号码个数和当前要生成的组合中号码的个数
 	    for (GroupNumber groupNumber : allList)
 	    {
 	    	countMap.put(groupNumber.getGroupNumber(), 0);
@@ -129,7 +129,6 @@ public class App
 				2.配置是否需要初始化countMap（在初始化方法中），还有需要生成的复式位数
 			 */
 			initParam();
-//			exctPredict();
 			InitParams.getMethodName();//初始化预测方法名
 		}
 		catch(Exception e)
@@ -178,7 +177,7 @@ public class App
 		}
 		if(maxflag&&null != App.methodName && !"".equals(App.methodName ))
 		{
-//			App.maxIssueId="17040727";
+//			App.maxIssueId="17040746";
 			maxflag = false;
 			//通过反射进入预测方法
 			PredictionRepository predictionRepository = new PredictionRepository();
