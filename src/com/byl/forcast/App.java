@@ -104,7 +104,7 @@ public class App
 	    
 	    //初始化map内容
 	    InsertInitDatatoDB datatoDB = new InsertInitDatatoDB();
-	    List<GroupNumber> allList = datatoDB.generateList(11,6);//传入号码个数和当前要生成的组合中号码的个数
+	    List<GroupNumber> allList = datatoDB.generateList(App.number,3);//传入号码个数和当前要生成的组合中号码的个数
 	    for (GroupNumber groupNumber : allList)
 	    {
 	    	countMap.put(groupNumber.getGroupNumber(), 0);
@@ -119,6 +119,15 @@ public class App
 		
 		try
 		{
+			//需要配置内容：
+			/**
+			 * 1.配置文件中的srcNumberTbName，源码表
+			 * lineCount = 83，当前彩种的最大数据量
+				beid = 1 ，专家id
+				ptypeid：区域预测类型id
+				number：号码池的号码个数
+				2.配置是否需要初始化countMap（在初始化方法中），还有需要生成的复式位数
+			 */
 			initParam();
 //			exctPredict();
 			InitParams.getMethodName();//初始化预测方法名

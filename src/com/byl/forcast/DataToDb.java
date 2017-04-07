@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import com.byl.forcast.danma.DanmaYuce;
 import com.byl.forcast.qianSLFushi.FushiYuce;
+import com.byl.forcast.renSLGroup.RenSanGroup;
 
 public class DataToDb 
 {
@@ -290,6 +291,41 @@ public class DataToDb
 	    	ConnectLTDb.dbClose(srcConn, pstmt, rs);
 	    }
 	    return fushiYuce;
+	  }
+	//获取任三精选6组的预测结果
+	public RenSanGroup getRensanSixGroupYuceRecordByIssueNumber(String issueNumber, String tbName)
+	  {
+	    Connection srcConn = ConnectLTDb.getConnection();
+	    RenSanGroup renSanGroup = new RenSanGroup();
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+	    String sql = "SELECT GROUP1,GROUP2,GROUP3,GROUP4,GROUP5,GROUP6 FROM " + tbName + " "
+	    		+ "WHERE ISSUE_NUMBER = '" + issueNumber + "'";
+	    try
+	    {
+	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);
+	      rs = pstmt.executeQuery(); 
+	      while (rs.next()) 
+	      {
+	         if(rs.isFirst())
+	         {
+	        	 renSanGroup.setGROUP1(rs.getString(1));
+	        	 renSanGroup.setGROUP2(rs.getString(2));
+	        	 renSanGroup.setGROUP3(rs.getString(3));
+	        	 renSanGroup.setGROUP4(rs.getString(4));
+	        	 renSanGroup.setGROUP5(rs.getString(5));
+	        	 renSanGroup.setGROUP6(rs.getString(6));
+	         }
+	      }
+	    }
+	    catch (Exception e)
+	    {
+	      e.printStackTrace();
+	    }
+	    finally{
+	    	ConnectLTDb.dbClose(srcConn, pstmt, rs);
+	    }
+	    return renSanGroup;
 	  }
 	
 	/**

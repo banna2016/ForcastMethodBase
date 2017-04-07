@@ -7,8 +7,11 @@ import java.util.Collections;
 import java.util.List;
 
 import com.byl.forcast.danma.ExecDanma;
+import com.byl.forcast.leFour.ExecHappyFourPlan;
+import com.byl.forcast.liangmaThree.ExecTwoCodeThreePlan;
 import com.byl.forcast.qianSLFushi.ExecQSLiumaFushi;
 import com.byl.forcast.renDanAndShama.ExecRenDanma;
+import com.byl.forcast.renSLGroup.ExecRensanTopSixgroup;
 import com.mysql.jdbc.PreparedStatement;
 
 /**
@@ -126,7 +129,24 @@ public class PredictionRepository
 	 */
 	public void groupSixOfRensan()
 	{
-		
+		ExecRensanTopSixgroup execRensanTopSixgroup = new ExecRensanTopSixgroup();
+		DataToDb dataToDb = new DataToDb();
+		//判断当期期号是否已经预测，预测则要判断中奖率
+		if(dataToDb.hasRecordByIssueNumber(App.maxIssueId,App.predictionTbName))
+		{//判断中奖率
+			execRensanTopSixgroup.updateStatus();
+			System.out.println("判断任三精选6组中奖率");
+			
+			List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);
+			execRensanTopSixgroup.execRensanTopsixGroup(yuanBeans);
+			
+		}
+		else
+		{
+			List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);
+			execRensanTopSixgroup.execRensanTopsixGroup(yuanBeans);
+			System.out.println("开始预测任三精选6组");
+		}
 	}
 	
 	/**
@@ -141,6 +161,8 @@ public class PredictionRepository
 	 */
 	public void LeFourOfRensi()
 	{
+		ExecHappyFourPlan execHappyFourPlan = new ExecHappyFourPlan();
+		
 		
 	}
 	
@@ -156,6 +178,8 @@ public class PredictionRepository
 	 */
 	public void LiangThreeOfRener()
 	{
+		ExecTwoCodeThreePlan execTwoCodeThreePlan = new ExecTwoCodeThreePlan();
+		
 		
 	}
 	

@@ -7,8 +7,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,12 +17,10 @@ import java.util.Set;
 import com.byl.forcast.App;
 import com.byl.forcast.ConnectLTDb;
 import com.byl.forcast.DataToDb;
-import com.byl.forcast.FiveInCount;
 import com.byl.forcast.GroupNumber;
 import com.byl.forcast.Maputil;
 import com.byl.forcast.PredictionRepository;
 import com.byl.forcast.SrcFiveDataBean;
-import com.byl.forcast.danma.DanmaYuce;
 
 /**
  * 运行前三六码复式预测
@@ -85,7 +81,7 @@ public class ExecQSLiumaFushi
 		
 	}
 	//将统计表的count清0
-	private void clearTongji()
+	public void clearTongji()
 	{
 		for (String key : App.countMap.keySet()) {
 			App.countMap.put(key, 0);
@@ -185,7 +181,7 @@ public class ExecQSLiumaFushi
 		return gmax;
 	}
 	//判断list中是否包含gnumber
-	private boolean listContainValue(List<GroupNumber> list,GroupNumber gnumber)
+	public static boolean listContainValue(List<GroupNumber> list,GroupNumber gnumber)
 	{
 		boolean flag =  false;
 		
@@ -334,7 +330,7 @@ public class ExecQSLiumaFushi
 	* @return Map<String,Object>    返回类型 
 	* @throws
 	 */
-	private Map<String,Object> judgeEqualCount(List<GroupNumber> countlist,int start)
+	public Map<String,Object> judgeEqualCount(List<GroupNumber> countlist,int start)
 	{
 		Map<String,Object> result = new HashMap<String,Object>();
 		
