@@ -752,9 +752,10 @@ public class ExecQSLiumaFushi
 		int fushiYes = 0;
 		String fushiStatus="0";
 		char[] fushiArr = fushiYuce.getFUSHI().toCharArray();
-		for (String kjNum : numList) 
+		
+		for(char yuce:fushiArr)
 		{
-			for(char yuce:fushiArr)
+			for (String kjNum : numList) 
 			{
 				if(kjNum.equals(yuce+""))
 				{
@@ -763,6 +764,7 @@ public class ExecQSLiumaFushi
 				}
 			}
 		}
+		
 		//返回标记是否执行预测
 		boolean yuceNextFlag = false;
 		

@@ -192,7 +192,20 @@ public class PredictionRepository
 	public void LiangThreeOfRener()
 	{
 		ExecTwoCodeThreePlan execTwoCodeThreePlan = new ExecTwoCodeThreePlan();
-		
+		DataToDb dataToDb = new DataToDb();
+		//判断当期期号是否已经预测，预测则要判断中奖率
+		if(dataToDb.hasFushiRecordByIssueNumber(App.maxIssueId,App.predictionTbName))
+		{//判断中奖率
+			execTwoCodeThreePlan.updateStatus();
+			System.out.println("判断两码三期计划中奖率");
+			
+		}
+		else
+		{
+			List<SrcFiveDataBean> yuanBeans = this.getOriginData(null);
+			execTwoCodeThreePlan.execLexuanFourPlan(yuanBeans);
+			System.out.println("开始两码三期计划复式");
+		}
 		
 	}
 	
