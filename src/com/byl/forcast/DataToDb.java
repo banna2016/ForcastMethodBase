@@ -142,14 +142,12 @@ public class DataToDb
 	    {
 	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);
 	      rs = pstmt.executeQuery();
-	      while (rs.next()) 
+	      if (rs.next()) 
 	      {
-	        count = rs.getInt(1);
-	      }
-	      if (count > 0) 
-	      {
+	        count = 1;
 	        flag = true;
 	      }
+	      
 	    }
 	    catch (Exception e)
 	    {
