@@ -298,7 +298,8 @@ public class DataToDb
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
 	    String sql = "SELECT GROUP1,GROUP2,GROUP3,GROUP4,GROUP5,GROUP6 FROM " + tbName + " "
-	    		+ "WHERE ISSUE_NUMBER = '" + issueNumber + "'";
+	    		+ "WHERE ISSUE_NUMBER = '" + issueNumber + "' and  "
+	    		+ "  PREDICTION_TYPE='"+App.ptypeid+"' and EXPERT_ID='"+App.beid+"' order by ISSUE_NUMBER desc limit 1 ";
 	    try
 	    {
 	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);
