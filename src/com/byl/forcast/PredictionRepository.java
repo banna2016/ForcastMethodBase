@@ -572,11 +572,11 @@ public class PredictionRepository
 		{
 			if(j == 0)
 			{
-				condistions.append("%"+numList.get(0)+"%");
+				condistions.append("%"+App.translate(numList.get(j))+"%");
 			}
 			else
 			{
-				condistions.append(numList.get(0)+"%");
+				condistions.append(App.translate(numList.get(j))+"%");
 			}
 		}
 		
@@ -587,7 +587,7 @@ public class PredictionRepository
 		{//若为再次获取源码，则要连接上次获取最小期号的条件
 			sql.append(" and issue_number < "+lastTimeIssue);
 		}
-		sql.append(" and issue_number!="+srcFiveDataBean.getIssueId()+" order by issue_number desc limit "+App.originDataCount);
+		sql.append(" and issue_number !="+srcFiveDataBean.getIssueId()+" order by issue_number desc limit "+App.originDataCount);
 		try
 		{
 			pstmt = (PreparedStatement)conn.prepareStatement(sql.toString());
@@ -723,7 +723,7 @@ public class PredictionRepository
 			{
 				sql.setLength(0);
 				sql.append("select issue_number,no1,no2,no3,no4,no5 from "+App.srcNumberTbName+" "
-						+ "where issue_number >"+yuanBeans.get(i).getIssueId()+" order by issue_number desc limit "+nplan);
+						+ "where issue_number >"+yuanBeans.get(i).getIssueId()+" order by issue_number ASC limit "+nplan);
 				pstmt = (PreparedStatement)conn.prepareStatement(sql.toString());
 				rs = pstmt.executeQuery();
 				 while (rs.next())
