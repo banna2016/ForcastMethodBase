@@ -421,7 +421,6 @@ public class ExecQSLiumaFushi
 		{
 			if(App.countMap.containsKey(groupNumber.getGroupNumber()))
 			{
-				System.out.println(groupNumber.getGroupNumber()+"="+App.countMap.get(groupNumber.getGroupNumber()).toString());
 				int count =   Integer.parseInt(App.countMap.get(groupNumber.getGroupNumber()).toString())+ 1;
 //				App.countMap.remove(groupNumber.getGroupNumber());
 				App.countMap.put(groupNumber.getGroupNumber(), count);
