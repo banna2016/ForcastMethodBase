@@ -441,6 +441,11 @@ public class PredictionRepository
 	{
 		  beans = this.getCurrentIssue(crConditions, lastIssue,srcFiveDataBean);
 		
+		  if(null !=  conn || conn.isClosed())
+		  {
+			  conn = ConnectSrcDb.getSrcConnection();
+		  }
+		  
 		  if(null != beans && beans.size()>0)
 		  {
 			  StringBuffer sql2 = new StringBuffer();
@@ -448,14 +453,19 @@ public class PredictionRepository
 			  {
 				  SrcFiveDataBean crbean = beans.get(m);
 				  sql2.setLength(0);
-				  sql2.append("SELECT issue_number,no1,no2,no3,no4,no5 FROM " + App.srcNumberTbName + " "
-				    		+ "WHERE "+lcConditions+" and  ISSUE_NUMBER < " + crbean.getIssueId() + " order by desc limit 1");
+				  sql2.append("SELECT issue_number,no1,no2,no3,no4,no5 from ( SELECT issue_number,no1,no2,no3,no4,no5 FROM " + App.srcNumberTbName + " "
+				    		+ "WHERE   ISSUE_NUMBER < " + crbean.getIssueId() + " order by ISSUE_NUMBER desc limit 1)a where "+lcConditions+" ");
 				  pstmt = (PreparedStatement)conn.prepareStatement(sql2.toString());
 				 rs = pstmt.executeQuery();
-				 if(rs.next())
+				 if(rs.next() && yuanBeans.size()<App.originDataCount)
 				 {
 					 yuanBeans.add(crbean);
 				 }
+				 else
+					 if(yuanBeans.size()>=App.originDataCount)
+					 {
+						 break;
+					 }
 				 if(m == beans.size()-1)
 				 {
 					 lastIssue = beans.get(m).getIssueId();//更新最近一期的期号
@@ -463,10 +473,14 @@ public class PredictionRepository
 					
 			  }
 			  
-			 if(yuanBeans.size()<App.originDataCount)
+			 if(yuanBeans.size()<App.originDataCount && yuanBeans.size()>0)
 			 {//若源码数量没有达到源码数据量要求，则要再获取当期数据再次筛选源码
 				 this.getLastIssue(beans, lcConditions, crConditions, lastIssue, yuanBeans, pstmt, rs, conn,srcFiveDataBean);
 			 }
+		  }
+		  else
+		  {
+			  conn.close();
 		  }
 		  
 			

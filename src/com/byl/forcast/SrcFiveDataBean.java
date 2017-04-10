@@ -16,55 +16,59 @@ public class SrcFiveDataBean {
 	  private int fiveSpan;
 	  private int bigCount;
 	  private int oddNum;
-	  private int smallNum;//小码
-	  private int ciSmallNum;//次小码
-	  private int middleNumber;//中码
-	  private int ciBigNum;//次大码
-	  private int bigNum;//大码
+	  private int SMALLEST_NUM;//小码
+	  private int SMALLER_NUM;//次小码
+	  private int MIDDLE_NUM;//中码
+	  private int BIGGER_NUM;//次大码
+	  private int BIGGEST_NUM;//大码
+	  private String noArr;
 	  
 	  public  Map<String, Object> numberMap = new HashMap<String, Object>();
 	  
 	  
 	  
-	public int getSmallNum() {
-		return smallNum;
+	  
+	public int getSMALLEST_NUM() {
+		return SMALLEST_NUM;
 	}
-	public void setSmallNum(int smallNum) {
-		numberMap.remove("SMALL_NUM");
-		numberMap.put("SMALL_NUM", smallNum);
-		this.smallNum = smallNum;
+	public void setSMALLEST_NUM(int sMALLEST_NUM) {
+		numberMap.put("SMALLEST_NUM", sMALLEST_NUM);
+		SMALLEST_NUM = sMALLEST_NUM;
 	}
-	public int getCiSmallNum() {
-		return ciSmallNum;
+	public int getSMALLER_NUM() {
+		return SMALLER_NUM;
 	}
-	public void setCiSmallNum(int ciSmallNum) {
-		numberMap.remove("CI_SMALL_NUM");
-		numberMap.put("CI_SMALL_NUM", ciSmallNum);
-		this.ciSmallNum = ciSmallNum;
+	public void setSMALLER_NUM(int sMALLER_NUM) {
+		numberMap.put("SMALLER_NUM", sMALLER_NUM);
+		SMALLER_NUM = sMALLER_NUM;
 	}
-	public int getMiddleNumber() {
-		return middleNumber;
+	public int getMIDDLE_NUM() {
+		return MIDDLE_NUM;
 	}
-	public void setMiddleNumber(int middleNumber) {
-		numberMap.remove("MIDDLE_NUMBER");
-		numberMap.put("MIDDLE_NUMBER", middleNumber);
-		this.middleNumber = middleNumber;
+	public void setMIDDLE_NUM(int mIDDLE_NUM) {
+		numberMap.put("MIDDLE_NUM", mIDDLE_NUM);
+		MIDDLE_NUM = mIDDLE_NUM;
 	}
-	public int getCiBigNum() {
-		return ciBigNum;
+	public int getBIGGER_NUM() {
+		return BIGGER_NUM;
 	}
-	public void setCiBigNum(int ciBigNum) {
-		numberMap.remove("CI_BIG_NUM");
-		numberMap.put("CI_BIG_NUM", ciBigNum);
-		this.ciBigNum = ciBigNum;
+	public void setBIGGER_NUM(int bIGGER_NUM) {
+		numberMap.put("BIGGER_NUM", bIGGER_NUM);
+		BIGGER_NUM = bIGGER_NUM;
 	}
-	public int getBigNum() {
-		return bigNum;
+	public int getBIGGEST_NUM() {
+		return BIGGEST_NUM;
 	}
-	public void setBigNum(int bigNum) {
-		numberMap.remove("BIG_NUM");
-		numberMap.put("BIG_NUM", bigNum);
-		this.bigNum = bigNum;
+	public void setBIGGEST_NUM(int bIGGEST_NUM) {
+		numberMap.put("BIGGEST_NUM", bIGGEST_NUM);
+		BIGGEST_NUM = bIGGEST_NUM;
+	}
+	public String getNoArr() {
+		return noArr;
+	}
+	public void setNoArr(String noArr) {
+		numberMap.put("noArr", noArr);
+		this.noArr = noArr;
 	}
 	public Map<String, Object> getNumberMap() {
 		return numberMap;

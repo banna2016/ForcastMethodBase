@@ -40,7 +40,8 @@ public class DataToDb
 	    Connection srcConn = ConnectSrcDb.getSrcConnection();
 	    PreparedStatement pstmt = null;
 	    SrcFiveDataBean srcDataBean = null;
-	    String sql = "SELECT issue_number,no1,no2,no3,no4,no5 FROM " + App.srcNumberTbName + " WHERE ISSUE_NUMBER = '" + issueCode + "'";
+	    String sql = "SELECT issue_number,no1,no2,no3,no4,no5,SMALLER_NUM,SMALLEST_NUM,"
+	    		+ "MIDDLE_NUM,BIGGER_NUM,BIGGEST_NUM,NOARR FROM " + App.srcNumberTbName + " WHERE ISSUE_NUMBER = '" + issueCode + "'";
 	    try
 	    {
 	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);
@@ -54,6 +55,12 @@ public class DataToDb
 	        srcDataBean.setNo3(rs.getInt(4));
 	        srcDataBean.setNo4(rs.getInt(5));
 	        srcDataBean.setNo5(rs.getInt(6));
+	        srcDataBean.setSMALLER_NUM(rs.getInt(7));
+	        srcDataBean.setSMALLEST_NUM(rs.getInt(8));
+	        srcDataBean.setMIDDLE_NUM(rs.getInt(9));
+	        srcDataBean.setBIGGER_NUM(rs.getInt(10));
+	        srcDataBean.setBIGGEST_NUM(rs.getInt(11));
+	        srcDataBean.setNoArr(rs.getString(12));
 	      }
 	      if ((rs != null) && (!rs.isClosed())) {
 	        rs.close();
@@ -73,7 +80,7 @@ public class DataToDb
 	    PreparedStatement pstmt = null;
 	    SrcFiveDataBean srcDataBean = null;
 	    String sql = "SELECT issue_number,no1,no2,no3,no4,no5 FROM " + App.srcNumberTbName + " "
-	    		+ "WHERE ISSUE_NUMBER < '" + issueCode + "' order by desc limit 1";
+	    		+ "WHERE ISSUE_NUMBER < '" + issueCode + "' order by ISSUE_NUMBER desc limit 1";
 	    try
 	    {
 	      pstmt = (PreparedStatement)srcConn.prepareStatement(sql);
