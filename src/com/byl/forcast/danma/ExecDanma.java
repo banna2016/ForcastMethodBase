@@ -87,7 +87,7 @@ public class ExecDanma
 			{
 //				int[] cidanArr = new int[ciCountEqual];
 				List<Integer> cidanArr = new ArrayList<Integer>();
-				for(int s = 1;s <ciCountEqual+1;s++)
+				for(int s = 1;s <=ciCountEqual+1;s++)
 				{
 //					cidanArr[s-1] = countlist.get(s).getNumber();//获取和独胆出现次数相同的号码
 					cidanArr.add(countlist.get(s).getNumber());
@@ -97,7 +97,8 @@ public class ExecDanma
 				//找出新的流码
 				flowbeans = pre.getFlowData(newYuan, App.nPlan);
 				//调用方法获取胆码
-				List<FiveInCount> cidanlist = this.findDanma(cidanArr, flowbeans,1,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId(),danList);//次胆有相同次数只需要找一个次胆号码即可
+				List<FiveInCount> cidanlist =  new ArrayList<FiveInCount>();
+				cidanlist = this.findDanma(cidanArr, flowbeans,1,pre,yuanBeans.get(yuanBeans.size()-1).getIssueId(),cidanlist);//次胆有相同次数只需要找一个次胆号码即可
 				
 				danList.add(cidanlist.get(0));//向胆码list中添加次胆数据
 			}
@@ -149,8 +150,9 @@ public class ExecDanma
 				//找出新的流码
 				flowbeans = pre.getFlowData(newYuan, App.nPlan);
 				//调用方法获取胆码
-				List<FiveInCount> shasanlist = this.findShama(shasanArr, flowbeans,1,pre,
-						yuanBeans.get(yuanBeans.size()-1).getIssueId(),shalist);//杀三码
+				List<FiveInCount> shasanlist = new ArrayList<FiveInCount>();
+				shasanlist = this.findShama(shasanArr, flowbeans,1,pre,
+						yuanBeans.get(yuanBeans.size()-1).getIssueId(),shasanlist);//杀三码
 				
 				shalist.add(shasanlist.get(0));//向胆码list中添加次胆数据
 			}
