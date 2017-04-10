@@ -48,7 +48,7 @@ public class ExecTwoCodeThreePlan
 		clearTongji();
 		
 		//将流码生成的两码复式更新到次数统计表中
-		execQSLiumaFushi.updateTimes(list, App.liumatbName);
+		execQSLiumaFushi.updateTimes(list);
 		
 		//找出出现次数最多的一组
 		List<GroupNumber> maxgroup = execRensanTopSixgroup.findMaxTimesGroup(10);//10:取10条数据，是limit的参数

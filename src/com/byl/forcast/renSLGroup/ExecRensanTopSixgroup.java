@@ -306,6 +306,7 @@ public class ExecRensanTopSixgroup
 		String a4 ;
 		String a5 ;
 		String a6 ;
+		System.out.println("bean="+kjhm.get(0)+kjhm.get(1)+kjhm.get(2)+kjhm.get(3)+kjhm.get(4)+bean.getIssueId());
 		for(int i1=0;i1<len;i1++)
 		{
 			a1 = kjhm.get(i1);
@@ -347,7 +348,7 @@ public class ExecRensanTopSixgroup
 									GroupNumber gnumber  = new GroupNumber();
 									
 									gnumber.setGroupNumber(a1+a2+a3+a4);
-									
+									System.out.println(gnumber.getGroupNumber());
 									list.add(gnumber);
 								}
 								/*else

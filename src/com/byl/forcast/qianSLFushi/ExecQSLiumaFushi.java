@@ -45,7 +45,7 @@ public class ExecQSLiumaFushi
 		clearTongji();
 		
 		//将流码生成的前三六码复式更新到次数统计表中
-		this.updateTimes(list, App.liumatbName);
+		this.updateTimes(list);
 		
 		//找出出现次数最多的一组
 		List<GroupNumber> maxgroup = this.findMaxTimesGroup(10);//10:取10条数据，是limit的参数
@@ -414,13 +414,14 @@ public class ExecQSLiumaFushi
 		return list;
 	}
 	
-	public void updateTimes(List<GroupNumber> list,String tbName)
+	public void updateTimes(List<GroupNumber> list)
 	{
 		//将每个组合的出现次数统计在countMap中
 		for (GroupNumber groupNumber : list) 
 		{
 			if(App.countMap.containsKey(groupNumber.getGroupNumber()))
 			{
+				System.out.println(groupNumber.getGroupNumber()+"="+App.countMap.get(groupNumber.getGroupNumber()).toString());
 				int count =   Integer.parseInt(App.countMap.get(groupNumber.getGroupNumber()).toString())+ 1;
 //				App.countMap.remove(groupNumber.getGroupNumber());
 				App.countMap.put(groupNumber.getGroupNumber(), count);

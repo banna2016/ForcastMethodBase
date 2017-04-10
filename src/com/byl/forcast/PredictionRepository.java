@@ -504,7 +504,7 @@ public class PredictionRepository
 		StringBuffer sql = new StringBuffer("select issue_number,no1,no2,no3,no4,no5 from "+App.srcNumberTbName+" "
 				+ "where "+crConditions);
 		
-		sql.append(" and issue_number!="+srcFiveDataBean.getIssueId()+" ORDER BY ISSUE_NUMBER DESC LIMIT 500");
+		sql.append(" and issue_number <"+srcFiveDataBean.getIssueId()+" ORDER BY ISSUE_NUMBER DESC LIMIT 500");
 		try
 		{
 			pstmt = (PreparedStatement)conn.prepareStatement(sql.toString());
@@ -723,7 +723,7 @@ public class PredictionRepository
 			{
 				sql.setLength(0);
 				sql.append("select issue_number,no1,no2,no3,no4,no5 from "+App.srcNumberTbName+" "
-						+ "where issue_number >"+yuanBeans.get(i).getIssueId()+" limit "+nplan);
+						+ "where issue_number >"+yuanBeans.get(i).getIssueId()+" order by issue_number desc limit "+nplan);
 				pstmt = (PreparedStatement)conn.prepareStatement(sql.toString());
 				rs = pstmt.executeQuery();
 				 while (rs.next())
