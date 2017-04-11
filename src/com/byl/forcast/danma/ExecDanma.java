@@ -4,17 +4,16 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.byl.forcast.App;
 import com.byl.forcast.ConnectLTDb;
-import com.byl.forcast.ConnectSrcDb;
 import com.byl.forcast.DataToDb;
 import com.byl.forcast.FiveInCount;
 import com.byl.forcast.PredictionRepository;
@@ -693,9 +692,61 @@ public class ExecDanma
 			countZJ = dataToDb.getCountOfexpertprediction("SHAMASAN_STATUS", false,limitnumber);//获取中奖的
 			double shasanZJL = countZJ/countAll;
 			
+			
+			//TODO:待完成：根据中奖率判断当前专家是否收费（前三胆码，杀码）
+			//前三胆码：L1（独胆对7，双胆对9或杀二对9或杀三对8）
+			//前三胆码：L2（独胆对6，双胆对8或杀二对8或杀三对6,7）
+			//前三胆码：L3（独胆对4,5，双胆对7或杀二对7或杀三对5）
+			String expertLevel = "4";
+			String money = "0";//收费钱数
+			String isCharge = "0";//是否收费
+			Random rand = new Random();
+			if(dudanZJL>=0.7 || shuangdanZJL>=0.9 || shaerZJL>=0.9 || shasanZJL>=0.8 )
+			{
+				expertLevel = "1";
+				//收费标准取值范围是（0,3,5,8）
+				int[] moneyArr = {0,3,5,8};
+				int randNum = rand.nextInt(moneyArr.length);
+				money = moneyArr[randNum]+"";//随机收费钱数
+				if(!"0".equals(money))
+				{
+					isCharge = "1";//收费
+				}
+				
+			}
+			else
+				if(dudanZJL>=0.6 || shuangdanZJL>=0.8 || shaerZJL>=0.8 || shasanZJL>=0.6 )
+				{
+					expertLevel = "2";
+					//收费标准取值范围是（0,3,5）
+					int[] moneyArr = {0,3,5};
+					int randNum = rand.nextInt(moneyArr.length);
+					money = moneyArr[randNum]+"";//随机收费钱数
+					if(!"0".equals(money))
+					{
+						isCharge = "1";//收费
+					}
+				}
+				else
+					if(dudanZJL>=0.4 || shuangdanZJL>=0.7 || shaerZJL>=0.7 || shasanZJL>=0.5 )
+					{
+						expertLevel = "3";
+						//收费标准取值范围是（0,3,5）
+						int[] moneyArr = {0,3};
+						int randNum = rand.nextInt(moneyArr.length);
+						money = moneyArr[randNum]+"";//随机收费钱数
+						if(!"0".equals(money))
+						{
+							isCharge = "1";//收费
+						}
+					}
+			
 			//更新预测到当前期为止该专家的中奖几率
 			StringBuffer sqlzjl =new StringBuffer();
 			sqlzjl.append("update "+App.predictionTbName+" set "
+					+ " IS_CHARGE="+isCharge+" ,"
+					+ " MONEY="+money+" ,"
+					+ " EXPERT_LEVEL="+expertLevel+" ,"
 					+ " WIN_RATE_DUDAN="+dudanZJL+" ,"
 					+ " WIN_RATE_SHUANGDAN="+shuangdanZJL+" ,"
 					+ " WIN_RATE_DANMA="+danmaZJL+" ,"
@@ -707,11 +758,7 @@ public class ExecDanma
 					+ " PREDICTION_TYPE='"+App.ptypeid+"' ");
 			
 			pstmt.executeUpdate(sqlzjl.toString());
-			
-			//TODO:待完成：根据中奖率判断当前专家是否收费
-			
-			
-			
+				
 		} 
 		catch (SQLException e) 
 		{
