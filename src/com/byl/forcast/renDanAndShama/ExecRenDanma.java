@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.byl.forcast.App;
 import com.byl.forcast.ConnectLTDb;
@@ -534,9 +535,61 @@ public class ExecRenDanma
 			countZJ = dataToDb.getCountOfexpertprediction("SHAMAYI_STATUS", false,limitnumber);//获取中奖的
 			double shayiZJL = countZJ/countAll;
 			
+			
+			//TODO:待完成：根据中奖率判断当前专家是否收费（胆码，杀码）
+			//前三胆码：L1（任胆对9，任杀对9）
+			//前三胆码：L2（任胆对7，任杀对8）
+			//前三胆码：L3（任胆对6，任杀对7）
+			String expertLevel = "4";
+			String money = "0";//收费钱数
+			String isCharge = "0";//是否收费
+			Random rand = new Random();
+			if(dudanZJL>=0.9 || shayiZJL>=0.9 )
+			{
+				expertLevel = "1";
+				//收费标准取值范围是（0,3,5,8）
+				int[] moneyArr = {0,3,5,8};
+				int randNum = rand.nextInt(moneyArr.length);
+				money = moneyArr[randNum]+"";//随机收费钱数
+				if(!"0".equals(money))
+				{
+					isCharge = "1";//收费
+				}
+				
+			}
+			else
+				if(dudanZJL>=0.7 || shayiZJL>=0.8)
+				{
+					expertLevel = "2";
+					//收费标准取值范围是（0,3,5）
+					int[] moneyArr = {0,3,5};
+					int randNum = rand.nextInt(moneyArr.length);
+					money = moneyArr[randNum]+"";//随机收费钱数
+					if(!"0".equals(money))
+					{
+						isCharge = "1";//收费
+					}
+				}
+				else
+					if(dudanZJL>=0.6 || shayiZJL>=0.7)
+					{
+						expertLevel = "3";
+						//收费标准取值范围是（0,3,5）
+						int[] moneyArr = {0,3};
+						int randNum = rand.nextInt(moneyArr.length);
+						money = moneyArr[randNum]+"";//随机收费钱数
+						if(!"0".equals(money))
+						{
+							isCharge = "1";//收费
+						}
+					}
+			
 			//更新预测到当前期为止该专家的中奖几率
 			StringBuffer sqlzjl =new StringBuffer();
 			sqlzjl.append("update "+App.predictionTbName+" set "
+					+ " IS_CHARGE="+isCharge+" ,"
+					+ " MONEY="+money+" ,"
+					+ " EXPERT_LEVEL="+expertLevel+" ,"
 					+ " WIN_RATE_DUDAN="+dudanZJL+" ,"
 					+ " WIN_RATE_SHAYI="+shayiZJL+" "
 					+ " where"
@@ -545,10 +598,6 @@ public class ExecRenDanma
 					+ " PREDICTION_TYPE='"+App.ptypeid+"' ");
 			
 			pstmt.executeUpdate(sqlzjl.toString());
-			
-			//TODO:待完成：根据中奖率判断当前专家是否收费
-			
-			
 			
 		} 
 		catch (SQLException e) 
