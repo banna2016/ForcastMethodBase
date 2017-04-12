@@ -177,7 +177,7 @@ public class App
 		}
 		if(maxflag&&null != App.methodName && !"".equals(App.methodName ))
 		{
-//			App.maxIssueId="17040747";
+//			App.maxIssueId="17041148";
 			maxflag = false;
 			//通过反射进入预测方法
 			PredictionRepository predictionRepository = new PredictionRepository();

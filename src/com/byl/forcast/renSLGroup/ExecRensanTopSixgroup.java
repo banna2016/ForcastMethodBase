@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import com.byl.forcast.App;
@@ -475,9 +476,61 @@ public class ExecRensanTopSixgroup
 			double countZJ = dataToDb.getCountOfexpertprediction("STATUS", false,limitnumber);//获取中奖的任三6组
 			double dudanZJL = countZJ/countAll;
 			
+			//TODO:待完成：根据中奖率判断当前专家是否收费（任三精选6组）
+			//任三精选6组：L1（对8）
+			//任三精选6组：L2（对7，对6）
+			//任三精选6组：L3（对5）
+			String expertLevel = "4";
+			String money = "0";//收费钱数
+			String isCharge = "0";//是否收费
+			Random rand = new Random();
+			if(dudanZJL>=0.8 )
+			{
+				expertLevel = "1";
+				//收费标准取值范围是（0,3,5,8）
+				int[] moneyArr = {0,3,5,8};
+				int randNum = rand.nextInt(moneyArr.length);
+				money = moneyArr[randNum]+"";//随机收费钱数
+				if(!"0".equals(money))
+				{
+					isCharge = "1";//收费
+				}
+				
+			}
+			else
+				if(dudanZJL>=0.6)
+				{
+					expertLevel = "2";
+					//收费标准取值范围是（0,3,5）
+					int[] moneyArr = {0,3,5};
+					int randNum = rand.nextInt(moneyArr.length);
+					money = moneyArr[randNum]+"";//随机收费钱数
+					if(!"0".equals(money))
+					{
+						isCharge = "1";//收费
+					}
+				}
+				else
+					if(dudanZJL>=0.5 )
+					{
+						expertLevel = "3";
+						//收费标准取值范围是（0,3,5）
+						int[] moneyArr = {0,3};
+						int randNum = rand.nextInt(moneyArr.length);
+						money = moneyArr[randNum]+"";//随机收费钱数
+						if(!"0".equals(money))
+						{
+							isCharge = "1";//收费
+						}
+					}
+			
+			
 			//更新预测到当前期为止该专家的中奖几率
 			StringBuffer sqlzjl =new StringBuffer();
 			sqlzjl.append("update "+App.predictionTbName+" set "
+					+ " IS_CHARGE="+isCharge+" ,"
+					+ " MONEY="+money+" ,"
+					+ " EXPERT_LEVEL="+expertLevel+" ,"
 					+ " WIN_RATE="+dudanZJL+" "
 					+ " where"
 					+ " ISSUE_NUMBER="+App.maxIssueId+" and "
@@ -487,7 +540,6 @@ public class ExecRensanTopSixgroup
 			pstmt.executeUpdate(sqlzjl.toString());
 			
 			
-			//TODO:待完成1：根据中奖率判断当前专家是否收费
 			
 			
 		} 

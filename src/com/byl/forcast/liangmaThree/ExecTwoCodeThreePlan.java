@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.byl.forcast.App;
 import com.byl.forcast.ConnectLTDb;
@@ -332,9 +333,60 @@ public class ExecTwoCodeThreePlan
 			double countZJ = dataToDb.getCountOfexpertprediction("STATUS", false,limitnumber);//获取中奖的前三六码预测
 			double dudanZJL = countZJ/countAll;
 			
+			//TODO:待完成：根据中奖率判断当前专家是否收费（两码三期计划）
+			//两码三期计划：L1（对9）
+			//两码三期计划：L2（对7,8）
+			//两码三期计划：L3（对6）
+			String expertLevel = "4";
+			String money = "0";//收费钱数
+			String isCharge = "0";//是否收费
+			Random rand = new Random();
+			if(dudanZJL>=0.9 )
+			{
+				expertLevel = "1";
+				//收费标准取值范围是（0,3,5,8）
+				int[] moneyArr = {0,3,5,8};
+				int randNum = rand.nextInt(moneyArr.length);
+				money = moneyArr[randNum]+"";//随机收费钱数
+				if(!"0".equals(money))
+				{
+					isCharge = "1";//收费
+				}
+				
+			}
+			else
+				if(dudanZJL>=0.7)
+				{
+					expertLevel = "2";
+					//收费标准取值范围是（0,3,5）
+					int[] moneyArr = {0,3,5};
+					int randNum = rand.nextInt(moneyArr.length);
+					money = moneyArr[randNum]+"";//随机收费钱数
+					if(!"0".equals(money))
+					{
+						isCharge = "1";//收费
+					}
+				}
+				else
+					if(dudanZJL>=0.6 )
+					{
+						expertLevel = "3";
+						//收费标准取值范围是（0,3,5）
+						int[] moneyArr = {0,3};
+						int randNum = rand.nextInt(moneyArr.length);
+						money = moneyArr[randNum]+"";//随机收费钱数
+						if(!"0".equals(money))
+						{
+							isCharge = "1";//收费
+						}
+					}
+			
 			//更新预测到当前期为止该专家的中奖几率
 			StringBuffer sqlzjl =new StringBuffer();
 			sqlzjl.append("update "+App.predictionTbName+" set "
+					+ " IS_CHARGE="+isCharge+" ,"
+					+ " MONEY="+money+" ,"
+					+ " EXPERT_LEVEL="+expertLevel+" ,"
 					+ " WIN_RATE="+dudanZJL+" "
 					+ " where"
 					+ " ID='"+fushiYuce.getID()+"'");
@@ -342,7 +394,6 @@ public class ExecTwoCodeThreePlan
 			pstmt.executeUpdate(sqlzjl.toString());
 			
 			
-			//TODO:待完成1：根据中奖率判断当前专家是否收费
 			
 			//判断是否预测下一期(若当期中出，或者当期的期号是预测计划的最后一期，则要继续预测)
 			if(yuceNextFlag || App.maxIssueId.equals(fushiYuce.getYUCE_ISSUE_STOP()))
