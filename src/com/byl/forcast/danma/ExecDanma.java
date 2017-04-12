@@ -705,7 +705,7 @@ public class ExecDanma
 			{
 				expertLevel = "1";
 				//收费标准取值范围是（0,3,5,8）
-				int[] moneyArr = {0,3,5,8};
+				int[] moneyArr = {3,5,8};
 				int randNum = rand.nextInt(moneyArr.length);
 				money = moneyArr[randNum]+"";//随机收费钱数
 				if(!"0".equals(money))
