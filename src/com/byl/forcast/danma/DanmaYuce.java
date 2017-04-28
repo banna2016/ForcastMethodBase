@@ -20,9 +20,17 @@ public class DanmaYuce {
 	private String IS_CHARGE;
 	private String MONEY;
 	
+	private Double  WIN_RATE_SHAYI;
 	
 	
 	
+	
+	public Double getWIN_RATE_SHAYI() {
+		return WIN_RATE_SHAYI;
+	}
+	public void setWIN_RATE_SHAYI(Double wIN_RATE_SHAYI) {
+		WIN_RATE_SHAYI = wIN_RATE_SHAYI;
+	}
 	public Double getWIN_RATE_DUDAN() {
 		return WIN_RATE_DUDAN;
 	}

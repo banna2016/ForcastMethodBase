@@ -23,7 +23,7 @@ import com.mysql.jdbc.PreparedStatement;
 public class PredictionRepository 
 {
 	/**
-	 * 前三胆码、杀码
+	 * 任胆杀
 	* @Title: execFirstThreeDanma 
 	* @Description: TODO(这里用一句话描述这个方法的作用) 
 	* @param     设定文件 
@@ -54,7 +54,7 @@ public class PredictionRepository
 		
 	}
 	/**
-	 * 任选胆码、杀码
+	 * 前三胆杀
 	* @Title: execDanma 
 	* @Description: TODO(这里用一句话描述这个方法的作用) 
 	* @param     设定文件 

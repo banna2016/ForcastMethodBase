@@ -186,7 +186,9 @@ public class DataToDb
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
 	    String sql = "SELECT PREDICTION_TYPE,EXPERT_ID,ISSUE_NUMBER,DANMA_ONE,DANMA_TWO,"
-	    		+ "SHAMA_ONE,SHAMA_TWO FROM " + tbName + " where issue_number = '" + issueNumber + "'  and "
+	    		+ "SHAMA_ONE,SHAMA_TWO,"
+	    		+ "WIN_RATE_DUDAN,WIN_RATE_SHUANGDAN,WIN_RATE_DANMA,WIN_RATE_SHAER,"
+	    		+ "WIN_RATE_SHASAN,EXPERT_LEVEL,IS_CHARGE,MONEY FROM " + tbName + " where issue_number = '" + issueNumber + "'  and "
 				+ " PREDICTION_TYPE='"+App.ptypeid+"' and EXPERT_ID='"+App.beid+"'  ";
 	    try
 	    {
@@ -203,6 +205,14 @@ public class DataToDb
 	        	 danmaYuce.setDANMA_TWO(rs.getString(5));
 	        	 danmaYuce.setSHAMA_ONE(rs.getString(6));
 	        	 danmaYuce.setSHAMA_TWO(rs.getString(7));
+	        	 danmaYuce.setWIN_RATE_DUDAN(rs.getDouble(8));
+	        	 danmaYuce.setWIN_RATE_SHUANGDAN(rs.getDouble(9));
+	        	 danmaYuce.setWIN_RATE_DANMA(rs.getDouble(10));
+	        	 danmaYuce.setWIN_RATE_SHAER(rs.getDouble(11));
+	        	 danmaYuce.setWIN_RATE_SHASAN(rs.getDouble(12));
+	        	 danmaYuce.setEXPERT_LEVEL(rs.getString(13));
+	        	 danmaYuce.setIS_CHARGE(rs.getString(14));
+	        	 danmaYuce.setMONEY(rs.getString(15));
 	         }
 	      }
 	    }
@@ -235,7 +245,9 @@ public class DataToDb
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
 	    String sql = "SELECT PREDICTION_TYPE,EXPERT_ID,ISSUE_NUMBER,DANMA_ONE,"
-	    		+ "SHAMA_ONE FROM " + tbName + " where issue_number = '" + issueNumber + "'   and "
+	    		+ "SHAMA_ONE,"
+	    		+ " IS_CHARGE,MONEY,WIN_RATE_DUDAN,WIN_RATE_SHAYI,EXPERT_LEVEL "
+	    		+ " FROM " + tbName + " where issue_number = '" + issueNumber + "'   and "
 				+ " PREDICTION_TYPE='"+App.ptypeid+"' and EXPERT_ID='"+App.beid+"' ";
 	    try
 	    {
@@ -250,6 +262,11 @@ public class DataToDb
 	        	 danmaYuce.setISSUE_NUMBER(rs.getString(3));
 	        	 danmaYuce.setDANMA_ONE(rs.getString(4));
 	        	 danmaYuce.setSHAMA_ONE(rs.getString(5));
+	        	 danmaYuce.setIS_CHARGE(rs.getString(6));
+	        	 danmaYuce.setMONEY(rs.getString(7));
+	        	 danmaYuce.setWIN_RATE_DUDAN(rs.getDouble(8));
+	        	 danmaYuce.setWIN_RATE_SHAYI(rs.getDouble(9));
+	        	 danmaYuce.setEXPERT_LEVEL(rs.getString(10));
 	         }
 	      }
 	    }
