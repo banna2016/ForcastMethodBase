@@ -182,12 +182,17 @@ public class ExecRensanTopSixgroup
 	private void insertToDB(List<GroupNumber> gMaxGroup)
 	{
 		//期号是代码中最大期号的下一期
+		//获取预测内容
+		DataToDb dataToDb = new DataToDb();
+		RenSanGroup renSanGroup = dataToDb.getRensanSixGroupYuceRecordByIssueNumber(App.maxIssueId, App.predictionTbName);
+			
 		String nextIssue = App.getNextIssueByCurrentIssue(App.maxIssueId);
 		PreparedStatement pstmt = null;
 		Connection conn = ConnectLTDb.getConnection();
 	    String sql = "insert into " + App.predictionTbName + " "
-	    		+ "(issue_number,CREATE_TIME,PREDICTION_TYPE,EXPERT_ID,GROUP1,GROUP2,GROUP3,GROUP4,GROUP5,GROUP6) "
-	    		+ "values(?,?,?,?,?,?,?,?,?,?)";
+	    		+ "(issue_number,CREATE_TIME,PREDICTION_TYPE,EXPERT_ID,GROUP1,GROUP2,GROUP3,GROUP4,GROUP5,GROUP6,"
+	    		+ "EXPERT_LEVEL,IS_CHARGE,MONEY,WIN_RATE,ZJGROUPS) "
+	    		+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	    try
 	    {
 	    	pstmt = (PreparedStatement)conn.prepareStatement(sql);
@@ -195,11 +200,16 @@ public class ExecRensanTopSixgroup
 	 	    pstmt.setTimestamp(2, new Timestamp(new Date().getTime()));
 	 	    pstmt.setString(3, App.ptypeid);
 	 	    pstmt.setString(4, App.beid);
-	 	    
+
 	 	    for(int i=1;i<=gMaxGroup.size();i++)
 	 	    {//循环放入group1~group6的6组数据
 	 	    	pstmt.setString(i+4, gMaxGroup.get(i-1).getGroupNumber());
 	 	    }
+	 	   pstmt.setString(11, renSanGroup.getEXPERT_LEVEL());
+	 	   pstmt.setString(12, renSanGroup.getIS_CHARGE());
+	 	   pstmt.setString(13, renSanGroup.getMONEY());
+	 	   pstmt.setDouble(14, renSanGroup.getWIN_RATE());
+	 	   pstmt.setString(15, renSanGroup.getZJGROUPS());
 	 	    
 	 	    pstmt.executeUpdate();
 	    }

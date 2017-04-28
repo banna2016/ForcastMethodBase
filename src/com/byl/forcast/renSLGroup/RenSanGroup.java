@@ -15,6 +15,50 @@ public class RenSanGroup
 	private String GROUP5;
 	private String GROUP6;
 	
+	private String  EXPERT_LEVEL;
+	private String IS_CHARGE;
+	private String MONEY;
+	private Double WIN_RATE;
+	private String ZJGROUPS;
+	
+	
+	
+	public String getEXPERT_LEVEL() {
+		return EXPERT_LEVEL;
+	}
+	public void setEXPERT_LEVEL(String eXPERT_LEVEL) {
+		EXPERT_LEVEL = eXPERT_LEVEL;
+	}
+	public String getIS_CHARGE() {
+		return IS_CHARGE;
+	}
+	public void setIS_CHARGE(String iS_CHARGE) {
+		IS_CHARGE = iS_CHARGE;
+	}
+	public String getMONEY() {
+		return MONEY;
+	}
+	public void setMONEY(String mONEY) {
+		MONEY = mONEY;
+	}
+	public Double getWIN_RATE() {
+		return WIN_RATE;
+	}
+	public void setWIN_RATE(Double wIN_RATE) {
+		WIN_RATE = wIN_RATE;
+	}
+	public String getZJGROUPS() {
+		return ZJGROUPS;
+	}
+	public void setZJGROUPS(String zJGROUPS) {
+		ZJGROUPS = zJGROUPS;
+	}
+	public Map<String, String> getMap() {
+		return map;
+	}
+	public void setMap(Map<String, String> map) {
+		this.map = map;
+	}
 	public Map<String,String> map = new HashMap<String,String>();
 	
 	public String getPREDICTION_TYPE() {

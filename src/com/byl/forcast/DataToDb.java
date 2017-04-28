@@ -321,7 +321,9 @@ public class DataToDb
 	    RenSanGroup renSanGroup = new RenSanGroup();
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
-	    String sql = "SELECT GROUP1,GROUP2,GROUP3,GROUP4,GROUP5,GROUP6 FROM " + tbName + " "
+	    String sql = "SELECT GROUP1,GROUP2,GROUP3,GROUP4,GROUP5,GROUP6,EXPERT_LEVEL,"
+	    		+ "IS_CHARGE,MONEY,WIN_RATE,ZJGROUPS"
+	    		+ " FROM " + tbName + " "
 	    		+ "WHERE ISSUE_NUMBER = '" + issueNumber + "' and  "
 	    		+ "  PREDICTION_TYPE='"+App.ptypeid+"' and EXPERT_ID='"+App.beid+"' order by ISSUE_NUMBER desc limit 1 ";
 	    try
@@ -338,6 +340,11 @@ public class DataToDb
 	        	 renSanGroup.setGROUP4(rs.getString(4));
 	        	 renSanGroup.setGROUP5(rs.getString(5));
 	        	 renSanGroup.setGROUP6(rs.getString(6));
+	        	 renSanGroup.setEXPERT_LEVEL(rs.getString(7));
+	        	 renSanGroup.setIS_CHARGE(rs.getString(8));
+	        	 renSanGroup.setMONEY(rs.getString(9));
+	        	 renSanGroup.setWIN_RATE(rs.getDouble(10));
+	        	 renSanGroup.setZJGROUPS(rs.getString(11));
 	         }
 	      }
 	    }
