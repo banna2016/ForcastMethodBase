@@ -493,12 +493,17 @@ public class ExecDanma
 	private void inserToDb(List<FiveInCount> danlist,List<FiveInCount> shalist)
 	{
 		//期号是代码中最大期号的下一期
+		//获取当前期的预测结果，使用计算的中奖率等内容
+		DataToDb dataToDb = new DataToDb();
+		DanmaYuce danmaYuce = dataToDb.getYuceRecordByIssueNumber(App.maxIssueId, App.predictionTbName);
 		String nextIssue = App.getNextIssueByCurrentIssue(App.maxIssueId);
 		 PreparedStatement pstmt = null;
 		Connection conn = ConnectLTDb.getConnection();
 	    String sql = "insert into " + App.predictionTbName + " "
-	    		+ "(issue_number,DANMA_ONE,DANMA_TWO,CREATE_TIME,PREDICTION_TYPE,EXPERT_ID,SHAMA_ONE,SHAMA_TWO) "
-	    		+ "values(?,?,?,?,?,?,?,?)";
+	    		+ "(issue_number,DANMA_ONE,DANMA_TWO,CREATE_TIME,PREDICTION_TYPE,EXPERT_ID,SHAMA_ONE,SHAMA_TWO,"
+	    		+ "WIN_RATE_DUDAN,WIN_RATE_SHUANGDAN,WIN_RATE_DANMA,WIN_RATE_SHAER,"
+	    		+ "WIN_RATE_SHASAN,EXPERT_LEVEL,IS_CHARGE,MONEY) "
+	    		+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	    try
 	    {
 	    	pstmt = (PreparedStatement)conn.prepareStatement(sql);
@@ -510,6 +515,14 @@ public class ExecDanma
 	 	    pstmt.setString(6, App.beid);
 	 	    pstmt.setString(7, App.translate(shalist.get(0).getNumber())+App.translate(shalist.get(1).getNumber()));
 	 	    pstmt.setString(8, App.translate(shalist.get(0).getNumber())+App.translate(shalist.get(1).getNumber())+App.translate(shalist.get(2).getNumber()));
+	 	    pstmt.setDouble(9, danmaYuce.getWIN_RATE_DUDAN());
+	 	    pstmt.setDouble(10, danmaYuce.getWIN_RATE_SHUANGDAN());
+	 	    pstmt.setDouble(11, danmaYuce.getWIN_RATE_DANMA());
+	 	    pstmt.setDouble(12, danmaYuce.getWIN_RATE_SHAER());
+	 	    pstmt.setDouble(13, danmaYuce.getWIN_RATE_SHASAN());
+	 	   pstmt.setString(14, danmaYuce.getEXPERT_LEVEL());
+	 	   pstmt.setString(15, danmaYuce.getIS_CHARGE());
+	 	   pstmt.setString(16, danmaYuce.getMONEY());
 	 	    pstmt.executeUpdate();
 	    }
 	   catch(Exception e)

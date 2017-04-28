@@ -10,6 +10,67 @@ public class DanmaYuce {
 	
 	private String SHAMA_ONE;
 	private String SHAMA_TWO;
+	
+	private Double WIN_RATE_DUDAN;
+	private Double  WIN_RATE_SHUANGDAN;
+	private Double  WIN_RATE_DANMA;
+	private Double  WIN_RATE_SHAER;
+	private Double  WIN_RATE_SHASAN;
+	private String  EXPERT_LEVEL;
+	private String IS_CHARGE;
+	private String MONEY;
+	
+	
+	
+	
+	public Double getWIN_RATE_DUDAN() {
+		return WIN_RATE_DUDAN;
+	}
+	public void setWIN_RATE_DUDAN(Double wIN_RATE_DUDAN) {
+		WIN_RATE_DUDAN = wIN_RATE_DUDAN;
+	}
+	public Double getWIN_RATE_SHUANGDAN() {
+		return WIN_RATE_SHUANGDAN;
+	}
+	public void setWIN_RATE_SHUANGDAN(Double wIN_RATE_SHUANGDAN) {
+		WIN_RATE_SHUANGDAN = wIN_RATE_SHUANGDAN;
+	}
+	public Double getWIN_RATE_DANMA() {
+		return WIN_RATE_DANMA;
+	}
+	public void setWIN_RATE_DANMA(Double wIN_RATE_DANMA) {
+		WIN_RATE_DANMA = wIN_RATE_DANMA;
+	}
+	public Double getWIN_RATE_SHAER() {
+		return WIN_RATE_SHAER;
+	}
+	public void setWIN_RATE_SHAER(Double wIN_RATE_SHAER) {
+		WIN_RATE_SHAER = wIN_RATE_SHAER;
+	}
+	public Double getWIN_RATE_SHASAN() {
+		return WIN_RATE_SHASAN;
+	}
+	public void setWIN_RATE_SHASAN(Double wIN_RATE_SHASAN) {
+		WIN_RATE_SHASAN = wIN_RATE_SHASAN;
+	}
+	public String getEXPERT_LEVEL() {
+		return EXPERT_LEVEL;
+	}
+	public void setEXPERT_LEVEL(String eXPERT_LEVEL) {
+		EXPERT_LEVEL = eXPERT_LEVEL;
+	}
+	public String getIS_CHARGE() {
+		return IS_CHARGE;
+	}
+	public void setIS_CHARGE(String iS_CHARGE) {
+		IS_CHARGE = iS_CHARGE;
+	}
+	public String getMONEY() {
+		return MONEY;
+	}
+	public void setMONEY(String mONEY) {
+		MONEY = mONEY;
+	}
 	public String getPREDICTION_TYPE() {
 		return PREDICTION_TYPE;
 	}
