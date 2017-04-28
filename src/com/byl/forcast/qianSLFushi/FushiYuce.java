@@ -11,10 +11,45 @@ public class FushiYuce {
 	private String CYCLE;
 	private int ID;
 	
+	private String  EXPERT_LEVEL;
+	private String IS_CHARGE;
+	private String MONEY;
+	private Double WIN_RATE;
+	private String ZJLEVEL;
 	
 	
 	
 	
+	public String getEXPERT_LEVEL() {
+		return EXPERT_LEVEL;
+	}
+	public void setEXPERT_LEVEL(String eXPERT_LEVEL) {
+		EXPERT_LEVEL = eXPERT_LEVEL;
+	}
+	public String getIS_CHARGE() {
+		return IS_CHARGE;
+	}
+	public void setIS_CHARGE(String iS_CHARGE) {
+		IS_CHARGE = iS_CHARGE;
+	}
+	public String getMONEY() {
+		return MONEY;
+	}
+	public void setMONEY(String mONEY) {
+		MONEY = mONEY;
+	}
+	public Double getWIN_RATE() {
+		return WIN_RATE;
+	}
+	public void setWIN_RATE(Double wIN_RATE) {
+		WIN_RATE = wIN_RATE;
+	}
+	public String getZJLEVEL() {
+		return ZJLEVEL;
+	}
+	public void setZJLEVEL(String zJLEVEL) {
+		ZJLEVEL = zJLEVEL;
+	}
 	public int getID() {
 		return ID;
 	}

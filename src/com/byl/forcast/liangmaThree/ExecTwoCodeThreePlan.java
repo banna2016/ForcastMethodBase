@@ -197,12 +197,18 @@ public class ExecTwoCodeThreePlan
 	private void insertToDB(GroupNumber gMaxGroup)
 	{
 		//期号是代码中最大期号的下一期
+		DataToDb dataToDb = new DataToDb();
+		//获取上一期的预测结果，无论是不是周期内，开始新的预测都是因为上一轮预测结果已经结束
+		FushiYuce fushiYuce = dataToDb.getQiansanLiuFushiYuceRecordByIssueNumber(App.maxIssueId, App.predictionTbName);
+		
+		
 		String nextIssue = App.getNextIssueByCurrentIssue(App.maxIssueId);
 		PreparedStatement pstmt = null;
 		Connection conn = ConnectLTDb.getConnection();
 	    String sql = "insert into " + App.predictionTbName + " "
-	    		+ "(issue_number,FUSHI,CREATE_TIME,PREDICTION_TYPE,EXPERT_ID,CYCLE,YUCE_ISSUE_START,YUCE_ISSUE_STOP) "
-	    		+ "values(?,?,?,?,?,?,?,?)";
+	    		+ "(issue_number,FUSHI,CREATE_TIME,PREDICTION_TYPE,EXPERT_ID,CYCLE,YUCE_ISSUE_START,YUCE_ISSUE_STOP, "
+	    		+ "EXPERT_LEVEL,IS_CHARGE,MONEY,WIN_RATE,ZJLEVEL) "
+	    		+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	    try
 	    {
 	    	pstmt = (PreparedStatement)conn.prepareStatement(sql);
@@ -214,6 +220,11 @@ public class ExecTwoCodeThreePlan
 	 	    pstmt.setString(6, App.nPlan);
 	 	    pstmt.setString(7, gMaxGroup.getStartIssue());
 	 	    pstmt.setString(8, gMaxGroup.getStopIssue());
+	 	    pstmt.setString(9, fushiYuce.getEXPERT_LEVEL());
+	 	    pstmt.setString(10, fushiYuce.getIS_CHARGE());
+	 	    pstmt.setString(11, fushiYuce.getMONEY());
+	 	    pstmt.setDouble(12, fushiYuce.getWIN_RATE());
+	 	    pstmt.setString(13, fushiYuce.getZJLEVEL());
 	 	    pstmt.executeUpdate();
 	 	    System.out.println(gMaxGroup.getGroupNumber());
 	    }
@@ -404,9 +415,16 @@ public class ExecTwoCodeThreePlan
 				this.execLexuanFourPlan(yuanBeans);
 			}
 			else
-			{//若没中出，且计划未到期，则继续
-				/*GroupNumber nextgnumber = new GroupNumber();
-				this.insertToDB(nextgnumber);*/
+			{//若没中出，且计划未到期，则继续，将issuenumber更新为下一期的期号（即：issuenum如果中出或者是计划结束期则为当期期号，若为计划内则为下期期号）
+				String nextIssue = App.getNextIssueByCurrentIssue(App.maxIssueId);
+				StringBuffer upSql = new StringBuffer();
+				pstmt = (PreparedStatement)conn.prepareStatement(upSql.toString());
+				upSql.append("update "+App.predictionTbName+" set "
+						+ " ISSUE_NUMBER='"+nextIssue+"' "//中奖期号||计划最后一期期号||计划内下一期的期号
+						+ " where"
+						+ " ID='"+fushiYuce.getID()+"'");
+				
+				pstmt.executeUpdate(upSql.toString());
 			}
 			
 		} 

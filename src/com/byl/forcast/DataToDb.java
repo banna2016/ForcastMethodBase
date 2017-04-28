@@ -286,7 +286,8 @@ public class DataToDb
 	    FushiYuce fushiYuce = new FushiYuce();
 	    PreparedStatement pstmt = null;
 	    ResultSet rs = null;
-	    String sql = "SELECT FUSHI,YUCE_ISSUE_START,YUCE_ISSUE_STOP,CYCLE,ID "
+	    String sql = "SELECT FUSHI,YUCE_ISSUE_START,YUCE_ISSUE_STOP,CYCLE,ID,"
+	    		+ "EXPERT_LEVEL,IS_CHARGE,MONEY,WIN_RATE,ZJLEVEL "
 	    		+ " FROM " + tbName + " where " + issueNumber + ">=YUCE_ISSUE_START and  " + issueNumber + "<=YUCE_ISSUE_STOP"
 	    		+ "  and  PREDICTION_TYPE='"+App.ptypeid+"' and EXPERT_ID='"+App.beid+"' order by YUCE_ISSUE_START desc limit 1 ";
 	    try
@@ -302,6 +303,11 @@ public class DataToDb
 	        	 fushiYuce.setYUCE_ISSUE_STOP(rs.getString(3));
 	        	 fushiYuce.setCYCLE(rs.getString(4));
 	        	 fushiYuce.setID(rs.getInt(5));
+	        	 fushiYuce.setEXPERT_LEVEL(rs.getString(6));
+	        	 fushiYuce.setIS_CHARGE(rs.getString(7));
+	        	 fushiYuce.setMONEY(rs.getString(8));
+	        	 fushiYuce.setWIN_RATE(rs.getDouble(9));
+	        	 fushiYuce.setZJLEVEL(rs.getString(10));
 	         }
 	      }
 	    }
