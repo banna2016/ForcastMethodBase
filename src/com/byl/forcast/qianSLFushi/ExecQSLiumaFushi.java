@@ -877,7 +877,8 @@ public class ExecQSLiumaFushi
 			
 			
 			//判断是否预测下一期(若当期中出，或者当期的期号是预测计划的最后一期，则要继续预测)
-			if(yuceNextFlag || App.maxIssueId.equals(fushiYuce.getYUCE_ISSUE_STOP()))
+			if(yuceNextFlag || App.maxIssueId.equals(fushiYuce.getYUCE_ISSUE_STOP())
+					|| Integer.parseInt(App.maxIssueId)>Integer.parseInt(fushiYuce.getYUCE_ISSUE_STOP()))
 			{
 				//判断完这期中奖率再预测下一期
 				PredictionRepository pre = new PredictionRepository();
