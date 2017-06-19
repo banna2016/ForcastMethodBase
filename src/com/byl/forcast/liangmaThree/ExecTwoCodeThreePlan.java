@@ -220,11 +220,11 @@ public class ExecTwoCodeThreePlan
 	 	    pstmt.setString(6, App.nPlan);
 	 	    pstmt.setString(7, gMaxGroup.getStartIssue());
 	 	    pstmt.setString(8, gMaxGroup.getStopIssue());
-	 	    pstmt.setString(9, fushiYuce.getEXPERT_LEVEL());
-	 	    pstmt.setString(10, fushiYuce.getIS_CHARGE());
-	 	    pstmt.setString(11, fushiYuce.getMONEY());
-	 	    pstmt.setDouble(12, fushiYuce.getWIN_RATE());
-	 	    pstmt.setString(13, fushiYuce.getZJLEVEL());
+	 	    pstmt.setString(9, null != fushiYuce.getZJLEVEL()?fushiYuce.getZJLEVEL():"4");
+	 	    pstmt.setString(10, null != fushiYuce.getIS_CHARGE()?fushiYuce.getIS_CHARGE():"0");
+	 	    pstmt.setString(11, null != fushiYuce.getMONEY()?fushiYuce.getMONEY():"0");
+	 	    pstmt.setDouble(12, null != fushiYuce.getWIN_RATE()?fushiYuce.getWIN_RATE():0);
+	 	    pstmt.setString(13, null != fushiYuce.getZJLEVEL()?fushiYuce.getZJLEVEL():"0");
 	 	    pstmt.executeUpdate();
 	 	    System.out.println(gMaxGroup.getGroupNumber());
 	    }

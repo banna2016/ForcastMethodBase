@@ -454,11 +454,11 @@ public class ExecRenDanma
 	 	    pstmt.setString(4, App.ptypeid);
 	 	    pstmt.setString(5, App.beid);
 	 	    pstmt.setString(6, App.translate(shalist.get(0).getNumber()));
-	 	    pstmt.setString(7, danmaYuce.getIS_CHARGE());
-	 	    pstmt.setString(8, danmaYuce.getMONEY());
-	 	    pstmt.setDouble(9, danmaYuce.getWIN_RATE_DUDAN());
-	 	    pstmt.setDouble(10, danmaYuce.getWIN_RATE_SHAYI());
-	 	   pstmt.setString(11, danmaYuce.getEXPERT_LEVEL());
+	 	    pstmt.setString(7, null != danmaYuce.getIS_CHARGE()?danmaYuce.getIS_CHARGE():"0");
+	 	    pstmt.setString(8, null != danmaYuce.getMONEY()?danmaYuce.getMONEY():"0");
+	 	    pstmt.setDouble(9, null != danmaYuce.getWIN_RATE_DUDAN()?danmaYuce.getWIN_RATE_DUDAN():0);
+	 	    pstmt.setDouble(10, null != danmaYuce.getWIN_RATE_SHAYI()?danmaYuce.getWIN_RATE_SHAYI():0);
+	 	   pstmt.setString(11, null != danmaYuce.getEXPERT_LEVEL()?danmaYuce.getEXPERT_LEVEL():"4");
 	 	    pstmt.executeUpdate();
 	    }
 	   catch(Exception e)

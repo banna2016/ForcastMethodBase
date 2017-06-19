@@ -515,14 +515,14 @@ public class ExecDanma
 	 	    pstmt.setString(6, App.beid);
 	 	    pstmt.setString(7, App.translate(shalist.get(0).getNumber())+App.translate(shalist.get(1).getNumber()));
 	 	    pstmt.setString(8, App.translate(shalist.get(0).getNumber())+App.translate(shalist.get(1).getNumber())+App.translate(shalist.get(2).getNumber()));
-	 	    pstmt.setDouble(9, danmaYuce.getWIN_RATE_DUDAN());
-	 	    pstmt.setDouble(10, danmaYuce.getWIN_RATE_SHUANGDAN());
-	 	    pstmt.setDouble(11, danmaYuce.getWIN_RATE_DANMA());
-	 	    pstmt.setDouble(12, danmaYuce.getWIN_RATE_SHAER());
-	 	    pstmt.setDouble(13, danmaYuce.getWIN_RATE_SHASAN());
-	 	   pstmt.setString(14, danmaYuce.getEXPERT_LEVEL());
-	 	   pstmt.setString(15, danmaYuce.getIS_CHARGE());
-	 	   pstmt.setString(16, danmaYuce.getMONEY());
+	 	    pstmt.setDouble(9, null != danmaYuce.getWIN_RATE_DUDAN()?danmaYuce.getWIN_RATE_DUDAN():0);
+	 	    pstmt.setDouble(10, null != danmaYuce.getWIN_RATE_SHUANGDAN()?danmaYuce.getWIN_RATE_SHUANGDAN():0);
+	 	    pstmt.setDouble(11, null != danmaYuce.getWIN_RATE_DANMA()?danmaYuce.getWIN_RATE_DANMA():0);
+	 	    pstmt.setDouble(12, null != danmaYuce.getWIN_RATE_SHAER()?danmaYuce.getWIN_RATE_SHAER():0);
+	 	    pstmt.setDouble(13, null != danmaYuce.getWIN_RATE_SHASAN()?danmaYuce.getWIN_RATE_SHASAN():0);
+	 	   pstmt.setString(14, null != danmaYuce.getEXPERT_LEVEL()?danmaYuce.getEXPERT_LEVEL():"4");
+	 	   pstmt.setString(15, null != danmaYuce.getIS_CHARGE()?danmaYuce.getIS_CHARGE():"0");
+	 	   pstmt.setString(16, null != danmaYuce.getMONEY()?danmaYuce.getMONEY():"0");
 	 	    pstmt.executeUpdate();
 	    }
 	   catch(Exception e)

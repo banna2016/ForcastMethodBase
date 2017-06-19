@@ -205,11 +205,11 @@ public class ExecRensanTopSixgroup
 	 	    {//循环放入group1~group6的6组数据
 	 	    	pstmt.setString(i+4, gMaxGroup.get(i-1).getGroupNumber());
 	 	    }
-	 	   pstmt.setString(11, renSanGroup.getEXPERT_LEVEL());
-	 	   pstmt.setString(12, renSanGroup.getIS_CHARGE());
-	 	   pstmt.setString(13, renSanGroup.getMONEY());
-	 	   pstmt.setDouble(14, renSanGroup.getWIN_RATE());
-	 	   pstmt.setString(15, renSanGroup.getZJGROUPS());
+	 	   pstmt.setString(11, null != renSanGroup.getEXPERT_LEVEL()?renSanGroup.getEXPERT_LEVEL():"4");
+	 	   pstmt.setString(12, null != renSanGroup.getIS_CHARGE()?renSanGroup.getIS_CHARGE():"0");
+	 	   pstmt.setString(13, null != renSanGroup.getMONEY()?renSanGroup.getMONEY():"0");
+	 	   pstmt.setDouble(14, null != renSanGroup.getWIN_RATE()?renSanGroup.getWIN_RATE():0);
+	 	   pstmt.setString(15, null != renSanGroup.getZJGROUPS()?renSanGroup.getZJGROUPS():"0");
 	 	    
 	 	    pstmt.executeUpdate();
 	    }
